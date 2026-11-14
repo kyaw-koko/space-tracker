@@ -33,12 +33,25 @@ SPHEREX_FLAGS = {
     0x0080: "ZODI_OUTLIER",
 }
 
+BAD_FLAGS_MASK = 0x0001 | 0x0002 | 0x0004 | 0x0010 | 0x0020 | 0x0040 | 0x0080
+INFO_FLAGS_MASK = 0x0008
+
+
+def is_clean_measurement(flag_val: int) -> bool:
+    """Return True if measurement contains NO bad pixel flags."""
+    return bool((flag_val & BAD_FLAGS_MASK) == 0)
+
 
 def decode_flags(flag_val: int) -> List[str]:
     """Decode integer bitmask into human-readable flag labels."""
     if flag_val == 0:
         return ["CLEAN"]
+
     labels = []
+    # If no bad flags are raised, mark as CLEAN (even if SOURCE_DETECTED is present)
+    if (flag_val & BAD_FLAGS_MASK) == 0:
+        labels.append("CLEAN")
+
     for bit, name in SPHEREX_FLAGS.items():
         if flag_val & bit:
             labels.append(name)
@@ -80,8 +93,14 @@ def extract_photometry_single(
     h, w = img_data.shape
 
     # Target pixel in this cutout
-    x_pix, y_pix = spatial_wcs.world_to_pixel(target_coord)
-    x_pix_f, y_pix_f = float(x_pix), float(y_pix)
+    try:
+        x_pix, y_pix = spatial_wcs.world_to_pixel(target_coord)
+        x_pix_f, y_pix_f = float(x_pix), float(y_pix)
+    except Exception:
+        return None
+
+    if not np.isfinite(x_pix_f) or not np.isfinite(y_pix_f):
+        return None
 
     # Check bounds
     if x_pix_f < 1.0 or x_pix_f >= (w - 1.0) or y_pix_f < 1.0 or y_pix_f >= (h - 1.0):
@@ -90,16 +109,19 @@ def extract_photometry_single(
     # Calculate aperture radius in pixels
     pix_scales = proj_plane_pixel_scales(spatial_wcs)
     arcsec_per_pix = float(np.mean(pix_scales)) * 3600.0 if np.all(np.isfinite(pix_scales)) else 6.2
-    if arcsec_per_pix <= 0:
+    if arcsec_per_pix <= 0 or not np.isfinite(arcsec_per_pix):
         arcsec_per_pix = 6.2
 
     r_pix = max(1.0, min(10.0, aperture_radius_arcsec / arcsec_per_pix))
-    aperture = CircularAperture((x_pix_f, y_pix_f), r=r_pix)
+    try:
+        aperture = CircularAperture((x_pix_f, y_pix_f), r=r_pix)
+    except Exception:
+        return None
 
     # Uncertainty / Error Map from HDU 3 (VARIANCE)
     variance_data = cutout.get("variance")
     if variance_data is not None and np.any(np.isfinite(variance_data)):
-        var_clipped = np.clip(variance_data, 1e-10, None)
+        var_clipped = np.clip(np.nan_to_num(variance_data, nan=1e-4), 1e-10, None)
         error_map = np.sqrt(var_clipped)
     else:
         # Fallback noise estimate from robust MAD around image
@@ -108,14 +130,21 @@ def extract_photometry_single(
             robust_rms = 0.05
         error_map = np.full_like(img_data, robust_rms)
 
-    # Aperture Photometry
+    # Aperture Photometry with NaN safety
+    clean_img = np.nan_to_num(img_data, nan=0.0)
+    clean_err = np.nan_to_num(error_map, nan=0.05)
     try:
-        phot_table = aperture_photometry(img_data, aperture, error=error_map)
+        phot_table = aperture_photometry(clean_img, aperture, error=clean_err)
         aperture_sum = float(phot_table["aperture_sum"][0])
         aperture_sum_err = float(phot_table["aperture_sum_err"][0])
     except Exception as exc:
         logger.warning(f"Aperture photometry error: {exc}")
         return None
+
+    if not np.isfinite(aperture_sum):
+        aperture_sum = 0.0
+    if not np.isfinite(aperture_sum_err) or aperture_sum_err <= 0:
+        aperture_sum_err = max(0.01, abs(aperture_sum) * 0.05)
 
     # Conversion from MJy/sr to uJy
     # 1 MJy = 10^12 uJy
@@ -125,10 +154,14 @@ def extract_photometry_single(
     flux_uJy = aperture_sum * conversion_factor
     flux_err_uJy = aperture_sum_err * conversion_factor
 
+    if not np.isfinite(flux_uJy):
+        flux_uJy = 0.0
     if not np.isfinite(flux_err_uJy) or flux_err_uJy <= 0:
         flux_err_uJy = max(0.1, abs(flux_uJy) * 0.05)
 
     snr = flux_uJy / flux_err_uJy if flux_err_uJy > 0 else 0.0
+    if not np.isfinite(snr):
+        snr = 0.0
 
     # FLAGS evaluation in aperture
     flags_data = cutout.get("flags")
@@ -155,6 +188,7 @@ def extract_photometry_single(
         "detector": cutout["detector_band"],
         "aperture_radius_arcsec": aperture_radius_arcsec,
         "flags": combined_flags,
+        "is_clean": is_clean_measurement(combined_flags),
         "flag_labels": decode_flags(combined_flags),
         "pixel_x": round(x_pix_f, 2),
         "pixel_y": round(y_pix_f, 2),
@@ -241,6 +275,7 @@ def synthesize_102_band_spectrum(
                 "detector": b["detector"],
                 "observations_combined": len(matched),
                 "flags": flags,
+                "is_clean": is_clean_measurement(flags),
                 "flag_labels": decode_flags(flags),
             })
         else:
@@ -255,6 +290,7 @@ def synthesize_102_band_spectrum(
                 "detector": b["detector"],
                 "observations_combined": 0,
                 "flags": 0,
+                "is_clean": False,
                 "flag_labels": ["NO_DATA"],
             })
 
@@ -287,8 +323,11 @@ def extract_full_spectrum(
 
     valid_fluxes = [p["flux_uJy"] for p in raw_points if p["flux_uJy"] is not None]
     summary = {
+        "total_channels": 102,
         "total_observations": len(raw_points),
         "covered_channels": len([b for b in binned_102 if b["flux_uJy"] is not None]),
+        "missing_channels": len([b for b in binned_102 if b["flux_uJy"] is None]),
+        "clean_channels": len([b for b in binned_102 if b["flux_uJy"] is not None and b.get("is_clean", True)]),
         "min_wavelength_um": raw_points[0]["wavelength_um"] if raw_points else None,
         "max_wavelength_um": raw_points[-1]["wavelength_um"] if raw_points else None,
         "peak_flux_uJy": max(valid_fluxes) if valid_fluxes else None,

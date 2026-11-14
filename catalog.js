@@ -3,7 +3,8 @@
  * SPHEREx Real-World Multi-Mission Astrometry & Vector Field (Gaia & AllWISE)
  * ============================================================================
  * Fetches real Gaia DR3 & AllWISE source cross-matching directly from IRSA TAP
- * and Astropy WCS coordinate transformations.
+ * and Astropy WCS coordinate transformations, rendering catalog-predicted
+ * proper-motion vectors overlaid on real SPHEREx FITS coadds.
  */
 
 let currentTarget = BENCHMARK_PRESETS[1]; // Barnard's Star (benchmark proper motion)
@@ -15,6 +16,7 @@ let showVectors = true;
 let baselineYears = 10;
 let baseImage = null;
 let hoveredSource = null;
+let activeCatalogAbortController = null;
 
 // DOM Elements
 const canvas = document.getElementById('vectorCanvas');
@@ -42,14 +44,26 @@ const inspectorBox = document.getElementById('inspectorBox');
  * Fetch real catalog data from backend (/api/sky-patch?include_catalogs=true)
  */
 async function loadRealCatalogData(target) {
-  showLoader(true, `Querying IRSA TAP for Gaia DR3 & AllWISE sources around ${target.name}...`);
+  // Abort any redundant in-flight catalog query
+  if (activeCatalogAbortController) {
+    activeCatalogAbortController.abort();
+  }
+  activeCatalogAbortController = new AbortController();
+  const currentSignal = activeCatalogAbortController.signal;
+
+  showLoader(true, `Querying IRSA TAP for Gaia DR3 & AllWISE sources around ${target.name || 'target'}...`);
   gaiaSources = [];
   allwiseSources = [];
   baseImage = null;
+  hoveredSource = null;
+
+  // Sync coordinates to URL
+  setUrlCoordinates(target.ra, target.dec, target.fov, target.id);
+  updateNavLinks();
 
   try {
-    const url = `${API_BASE}/api/sky-patch?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&mode=coadd&include_catalogs=true&max_frames=4`;
-    const res = await fetch(url);
+    const url = `${API_BASE}/api/sky-patch?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&mode=coadd&include_catalogs=true&max_frames=6`;
+    const res = await fetch(url, { signal: currentSignal });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 
     const json = await res.json();
@@ -72,12 +86,15 @@ async function loadRealCatalogData(target) {
       return;
     }
   } catch (err) {
+    if (err.name === 'AbortError') return;
     console.error("Catalog fetch error:", err);
     renderError(err.message);
   } finally {
-    showLoader(false);
-    updateBadges();
-    render();
+    if (!currentSignal.aborted) {
+      showLoader(false);
+      updateBadges();
+      render();
+    }
   }
 }
 
@@ -89,17 +106,18 @@ function showLoader(show, text = "") {
 }
 
 function updateBadges() {
-  coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (ICRS)`;
+  coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (ICRS / TAN WCS)`;
   countsBadge.textContent = `GAIA: ${gaiaSources.length} • ALLWISE: ${allwiseSources.length}`;
   valGaiaCount.textContent = gaiaSources.length;
   valAllwiseCount.textContent = allwiseSources.length;
 
-  const maxPM = Math.max(
-    ...gaiaSources.map(s => s.pm_total_mas_yr || 0),
-    ...allwiseSources.map(s => s.pm_total_mas_yr || 0),
-    0
-  );
-  valMaxPM.textContent = `${maxPM.toFixed(1)} mas/yr`;
+  const validPMs = [
+    ...gaiaSources.filter(s => s.pm_total_mas_yr !== null && s.pm_total_mas_yr !== undefined).map(s => s.pm_total_mas_yr),
+    ...allwiseSources.filter(s => s.pm_total_mas_yr !== null && s.pm_total_mas_yr !== undefined).map(s => s.pm_total_mas_yr)
+  ];
+
+  const maxPM = validPMs.length > 0 ? Math.max(...validPMs) : 0;
+  valMaxPM.textContent = maxPM > 0 ? `${maxPM.toFixed(1)} mas/yr` : "—";
 }
 
 /**
@@ -125,7 +143,8 @@ function render() {
     allwiseSources.forEach(src => {
       const cx = src.norm_x * w;
       const cy = src.norm_y_canvas * h;
-      const size = Math.max(3.5, 9 - (src.w1_mag ? (src.w1_mag - 8) * 0.7 : 3));
+      const w1 = (src.w1_mag !== null && src.w1_mag !== undefined) ? src.w1_mag : 12;
+      const size = Math.max(3.5, 9 - (w1 - 8) * 0.7);
 
       ctx.beginPath();
       ctx.moveTo(cx, cy - size);
@@ -149,7 +168,8 @@ function render() {
     gaiaSources.forEach(src => {
       const cx = src.norm_x * w;
       const cy = src.norm_y_canvas * h;
-      const r = Math.max(3, 8 - (src.mag_g ? (src.mag_g - 10) * 0.6 : 3));
+      const gMag = (src.mag_g !== null && src.mag_g !== undefined) ? src.mag_g : 14;
+      const r = Math.max(3, 8 - (gMag - 10) * 0.6);
 
       ctx.beginPath();
       ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -168,7 +188,8 @@ function render() {
   if (showVectors) {
     const all = [...(showGaia ? gaiaSources : []), ...(showAllwise ? allwiseSources : [])];
     all.forEach(src => {
-      if (!src.delta_norm_x && !src.delta_norm_y) return;
+      if (src.delta_norm_x === null || src.delta_norm_y === null || 
+          src.delta_norm_x === undefined || src.delta_norm_y === undefined) return;
 
       const x1 = src.norm_x * w;
       const y1 = src.norm_y_canvas * h;
@@ -213,7 +234,7 @@ canvas.addEventListener('mousemove', (e) => {
 
   const all = [...(showGaia ? gaiaSources : []), ...(showAllwise ? allwiseSources : [])];
   let closest = null;
-  let minDist = 20;
+  let minDist = 22;
 
   all.forEach(src => {
     const sx = src.norm_x * canvas.width;
@@ -231,13 +252,26 @@ canvas.addEventListener('mousemove', (e) => {
 
     if (closest) {
       inspectorBox.classList.add('active');
-      insDesignation.innerHTML = `<span style="color:${closest.catalog === 'Gaia DR3' ? '#00e5ff' : '#ff9100'}">●</span> ${closest.designation}`;
+      const dotColor = closest.catalog === 'Gaia DR3' ? '#00e5ff' : '#ff9100';
+      insDesignation.innerHTML = `<span style="color:${dotColor}">●</span> ${escapeHTML(closest.designation || 'Catalog Source')}`;
+      
+      const pmText = (closest.pm_total_mas_yr !== null && closest.pm_total_mas_yr !== undefined) ? 
+        `${closest.pm_total_mas_yr.toFixed(1)} mas/yr (Catalog Predicted)` : `Not Measured / Negligible`;
+
+      const gMagText = (closest.mag_g !== null && closest.mag_g !== undefined) ? 
+        `<div class="inspector-stat">G Mag: ${closest.mag_g.toFixed(2)}</div>` : '';
+      const w1MagText = (closest.w1_mag !== null && closest.w1_mag !== undefined) ? 
+        `<div class="inspector-stat">W1 Mag: ${closest.w1_mag.toFixed(2)}</div>` : '';
+      const plxText = (closest.parallax_mas !== null && closest.parallax_mas !== undefined) ? 
+        `<div class="inspector-stat">Parallax: ${closest.parallax_mas.toFixed(2)} mas</div>` : '';
+
       insDetails.innerHTML = `
-        <div class="inspector-stat">Catalog: ${closest.catalog}</div>
-        <div class="inspector-stat">PM: ${(closest.pm_total_mas_yr || 0).toFixed(1)} mas/yr</div>
-        ${closest.mag_g !== undefined ? `<div class="inspector-stat">G Mag: ${closest.mag_g.toFixed(2)}</div>` : ''}
-        ${closest.w1_mag !== undefined ? `<div class="inspector-stat">W1 Mag: ${closest.w1_mag.toFixed(2)}</div>` : ''}
-        ${closest.parallax_mas !== undefined ? `<div class="inspector-stat">Parallax: ${closest.parallax_mas.toFixed(2)} mas</div>` : ''}
+        <div class="inspector-stat">Catalog: ${escapeHTML(closest.catalog || 'Astrometric')}</div>
+        <div class="inspector-stat">PM: ${pmText}</div>
+        ${gMagText}
+        ${w1MagText}
+        ${plxText}
+        <div class="inspector-stat">Coords: RA ${closest.ra.toFixed(5)}°, Dec ${closest.dec.toFixed(5)}°</div>
       `;
     } else {
       inspectorBox.classList.remove('active');
@@ -301,5 +335,24 @@ targetSelect.addEventListener('change', (e) => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  const urlCoords = getUrlCoordinates();
+  if (urlCoords) {
+    const matched = BENCHMARK_PRESETS.find(p => 
+      Math.abs(p.ra - urlCoords.ra) < 0.005 && Math.abs(p.dec - urlCoords.dec) < 0.005
+    );
+    if (matched) {
+      currentTarget = matched;
+      targetSelect.value = currentTarget.id;
+    } else {
+      currentTarget = {
+        id: "custom",
+        name: `RA ${urlCoords.ra.toFixed(4)}, Dec ${urlCoords.dec.toFixed(4)}`,
+        ra: urlCoords.ra,
+        dec: urlCoords.dec,
+        fov: urlCoords.fov || 0.05
+      };
+    }
+  }
+
   loadRealCatalogData(currentTarget);
 });

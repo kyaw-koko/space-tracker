@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About - Sphere X Space Telescope</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="about.css">
+</head>
+<body>
+
+  <!-- Fixed Top Navigation Bar (Same as Home Page) -->
+  <div class="navbar">
+    <div class="nav-logo">
+      <a href="index.html">
+        <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-fallback" style="display: none;">
+          <span>SPHEREx</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="nav-links">
+      <div class="nav-item"><a href="about.html" class="active" id="nav-about">About</a></div>
+      <div class="nav-item"><a href="#" id="nav-explore">Explore</a></div>
+      <div class="nav-item"><a href="#" id="nav-track">Track</a></div>
+      <div class="nav-item lang-switch"><a href="#" id="lang-toggle">ENG/MM</a></div>
+    </div>
+  </div>
+
+  <!-- Scrollable Container for Satellite Parts & Builds -->
+  <div class="about-container">
+
+    <!-- Section 1: Detector Type -->
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="Detector Type" data-mm="အာရုံခံကိရိယာ အမျိုးအစား">Detector Type</div>
+        <div class="part-desc" 
+             data-en="Six 2K × 2K H2RG Mercury Cadmium Telluride (HgCdTe) arrays" 
+             data-mm="2K × 2K H2RG မာကျူရီ ကက်ဒမီယမ် တယ်လူရိုက် (HgCdTe) အာရုံခံပြား ၆ ခု">
+          Six 2K × 2K H2RG Mercury Cadmium Telluride (HgCdTe) arrays
+        </div>
+        <!-- Callout Line pointing to the satellite part on the right -->
+        <div class="callout-line"></div>
+      </div>
+
+      <div class="part-image">
+        <!-- Replace with your spacecraft image -->
+        <img src="spherex_2.png" alt="SPHEREx Detector Assembly">
+      </div>
+    </div>
+
+    <!-- Section 2: Focal Plane Layout -->
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="Focal Plane Layout" data-mm="ဆုံချက်ပြင် ဖွဲ့စည်းပုံ">Focal Plane Layout</div>
+        <div class="part-desc" 
+             data-en="Two 1 × 3 detector mosaics separated by a dichroic beam splitter" 
+             data-mm="အလင်းခွဲမှန် (Dichroic beam splitter) ဖြင့် ပိုင်းခြားထားသော 1 × 3 အာရုံခံအစုအဝေး နှစ်ခု">
+          Two 1 × 3 detector mosaics separated by a dichroic beam splitter
+        </div>
+        <div class="callout-line"></div>
+      </div>
+
+      <div class="part-image">
+        <!-- Replace with your focal plane / telescope image -->
+        <img src="spherex-focal.png" alt="SPHEREx Focal Plane Layout">
+      </div>
+    </div>
+
+    <!-- Section 3: Photon Shields & Cryogenic Cooling (Easily add/edit more parts like this!) -->
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="V-Groove Photon Shields" data-mm="အပူကာ V-Groove အလွှာများ">V-Groove Photon Shields</div>
+        <div class="part-desc" 
+             data-en="Three nested conical shields passively cool the telescope below 80 Kelvin without cryogens" 
+             data-mm="အအေးပေးဓာတ်ငွေ့ မလိုအပ်ဘဲ တယ်လီစကုပ်ကို 80 Kelvin အောက် အေးမြနေစေမည့် ကတော့ပုံ အကာ ၃ ထပ်">
+          Three nested conical shields passively cool the telescope below 80 Kelvin without cryogens
+        </div>
+        <div class="callout-line"></div>
+      </div>
+
+      <div class="part-image">
+        <!-- Replace with your photon shield / full build image -->
+        <img src="spherex-shield.png" alt="SPHEREx Photon Shields">
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Scroll Mouse Indicator (From your reference design) -->
+  <div class="scroll-indicator" id="scroll-indicator">
+    <div class="scroll-label" id="scroll-label">Scroll</div>
+    <div class="mouse-icon">
+      <div class="mouse-wheel"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-text">
+      &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
+    </div>
+  </div>
+
+  <script src="about.js"></script>
+</body>
+</html>

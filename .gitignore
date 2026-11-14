@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# SPHEREx Disk Cache
+.cache_spherex/
+*.pkl
+
+# Environments & Dependencies
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# Temporary files & logs
+*.log
+*.tmp
+.pytest_cache/
+.coverage
+htmlcov/

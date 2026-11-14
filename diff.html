@@ -69,6 +69,18 @@
         </button>
 
         <div class="pill-select-wrapper">
+          <select id="detectorSelect" class="pill-select" aria-label="Select Detector Band">
+            <option value="">Auto Same-Band</option>
+            <option value="SPHEREx-D1">Band 1 (0.75-1.09 μm)</option>
+            <option value="SPHEREx-D2">Band 2 (1.10-1.62 μm)</option>
+            <option value="SPHEREx-D3">Band 3 (1.63-2.41 μm)</option>
+            <option value="SPHEREx-D4">Band 4 (2.42-3.82 μm)</option>
+            <option value="SPHEREx-D5">Band 5 (3.83-4.41 μm)</option>
+            <option value="SPHEREx-D6">Band 6 (4.42-5.00 μm)</option>
+          </select>
+        </div>
+
+        <div class="pill-select-wrapper">
           <select id="targetSelect" class="pill-select" aria-label="Select Target">
             <option value="barnards-star">Barnard's Star (Dipole Benchmark)</option>
             <option value="wise-0855">WISE 0855-0714 (Cold Brown Dwarf)</option>
@@ -113,20 +125,28 @@
       <!-- Telemetry Grid -->
       <div class="telemetry-grid">
         <div class="telemetry-item">
-          <span class="telemetry-label">Dipole Contrast</span>
-          <span class="telemetry-value" id="valContrast">1.275 MJy/sr</span>
+          <span class="telemetry-label">Epoch A (Past)</span>
+          <span class="telemetry-value" id="valEpochA" style="font-size:12px;">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Epoch B (Recent)</span>
+          <span class="telemetry-value" id="valEpochB" style="font-size:12px;">—</span>
+        </div>
+        <div class="telemetry-item">
+          <span class="telemetry-label">Detector Array</span>
+          <span class="telemetry-value" id="valDetector" style="color:#00e5ff;">Same-Band Match</span>
         </div>
         <div class="telemetry-item">
           <span class="telemetry-label">Baseline Separation</span>
-          <span class="telemetry-value" id="valDeltaMJD">13.86 Days</span>
+          <span class="telemetry-value" id="valDeltaMJD">—</span>
         </div>
         <div class="telemetry-item">
-          <span class="telemetry-label">Colormap</span>
-          <span class="telemetry-value">Coolwarm (Zero-Centered)</span>
+          <span class="telemetry-label">Dipole Contrast</span>
+          <span class="telemetry-value" id="valContrast">—</span>
         </div>
         <div class="telemetry-item">
           <span class="telemetry-label">Candidate Status</span>
-          <span class="telemetry-value" id="valCandidateStatus" style="color:#00e5ff;">Dipole Detected (99.8%)</span>
+          <span class="telemetry-value" id="valCandidateStatus" style="color:#00e5ff;">Awaiting Processing</span>
         </div>
       </div>
     </aside>

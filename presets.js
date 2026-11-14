@@ -75,6 +75,8 @@ function renderCards() {
 
 function selectTarget(t) {
   activeTarget = t;
+  setUrlCoordinates(activeTarget.ra, activeTarget.dec, activeTarget.recommended_fov || 0.05, activeTarget.id);
+  updateNavLinks();
   renderCards();
   updateCardSelection();
   renderSkyMap();
@@ -262,21 +264,34 @@ canvas.addEventListener('click', () => {
 
 // Launch Button Navigations (Seamlessly passing active target to other pages!)
 launchBlinkerBtn.addEventListener('click', () => {
-  window.location.href = `explore.html`;
+  const fov = activeTarget.recommended_fov || 0.05;
+  window.location.href = `explore.html?ra=${activeTarget.ra}&dec=${activeTarget.dec}&fov=${fov}&target=${encodeURIComponent(activeTarget.id)}`;
 });
 
 launchVectorsBtn.addEventListener('click', () => {
-  window.location.href = `catalog.html`;
+  const fov = activeTarget.recommended_fov || 0.05;
+  window.location.href = `catalog.html?ra=${activeTarget.ra}&dec=${activeTarget.dec}&fov=${fov}&target=${encodeURIComponent(activeTarget.id)}`;
 });
 
 launchDiffBtn.addEventListener('click', () => {
-  window.location.href = `diff.html`;
+  const fov = activeTarget.recommended_fov || 0.05;
+  window.location.href = `diff.html?ra=${activeTarget.ra}&dec=${activeTarget.dec}&fov=${fov}&target=${encodeURIComponent(activeTarget.id)}`;
 });
 
 launchSpectrumBtn.addEventListener('click', () => {
-  window.location.href = `spectrum.html`;
+  const fov = activeTarget.recommended_fov || 0.05;
+  window.location.href = `spectrum.html?ra=${activeTarget.ra}&dec=${activeTarget.dec}&fov=${fov}&target=${encodeURIComponent(activeTarget.id)}`;
 });
 
 document.addEventListener('DOMContentLoaded', () => {
+  const urlCoords = getUrlCoordinates();
+  if (urlCoords) {
+    const matched = BENCHMARK_PRESETS.find(p => 
+      Math.abs(p.ra - urlCoords.ra) < 0.005 && Math.abs(p.dec - urlCoords.dec) < 0.005
+    );
+    if (matched) {
+      activeTarget = matched;
+    }
+  }
   loadPresets();
 });

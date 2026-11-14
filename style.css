@@ -1,0 +1,191 @@
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  height: 100%;
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  color: #ffffff;
+  background-color: #07090f;
+}
+
+/* Main Wrapper with Full-Screen Background */
+.page-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+  /* Fallback background image if video fails to load */
+  background-image: url('background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Full-Screen Background Video */
+.bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* Subtle dark tint so white text pops clearly */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(5, 8, 15, 0.25);
+  z-index: 1;
+}
+
+/* Ensure content sits above the background overlay */
+.navbar, .hero-section, .footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 60px;
+}
+
+.nav-logo img {
+  height: 75px;
+  width: auto;
+  display: block;
+}
+
+/* Fallback badge styling if image isn't linked yet */
+.logo-fallback {
+  width: 70px;
+  height: 70px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: #f0f2f5;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-item a:hover {
+  color: #8fa8ff;
+}
+
+.lang-switch {
+  margin-left: 25px;
+}
+
+/* --- Center Hero Section --- */
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+  margin-top: -30px; /* Slight upward optical alignment like the image */
+}
+
+.hero-title {
+  font-family: 'Silkscreen', monospace;
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 22px;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+.hero-subtitle {
+  max-width: 820px;
+  font-size: 1.45rem;
+  line-height: 1.5;
+  color: #f4f6f9;
+  margin-bottom: 42px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Pill-Shaped Outlined Button */
+.explore-btn {
+  display: inline-block;
+  text-decoration: none;
+  color: #ffffff;
+  font-size: 1.25rem;
+  padding: 15px 52px;
+  border: 1.5px solid #6c7a9c;
+  border-radius: 50px;
+  background-color: rgba(15, 22, 38, 0.25);
+  transition: all 0.3s ease;
+}
+
+.explore-btn:hover {
+  background-color: rgba(108, 122, 156, 0.35);
+  border-color: #a3b4dc;
+  transform: translateY(-2px);
+}
+
+/* --- Footer --- */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+/* --- Responsive Adjustments for Mobile/Tablet --- */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 20px 25px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-links {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .lang-switch {
+    margin-left: 0;
+  }
+
+  .hero-title {
+    font-size: 2.6rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+}

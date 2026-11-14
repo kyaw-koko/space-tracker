@@ -10,6 +10,8 @@
 // Target State: Defaulting to Barnard's Star (highest proper-motion star, verified in IRSA)
 let currentTarget = BENCHMARK_PRESETS[1]; // Barnard's Star
 let customTarget = null;
+let activeSkyAbortController = null;
+let activeSpecAbortController = null;
 
 // Pipeline Data State
 let realFrames = [];            // Array of real Base64 FITS frames from IRSA
@@ -35,6 +37,8 @@ const toggleVectorsBtn = document.getElementById('toggleVectorsBtn');
 const vectorBtnText = document.getElementById('vectorBtnText');
 const btnExtractSpectrum = document.getElementById('btnExtractSpectrum');
 const targetSelect = document.getElementById('targetSelect');
+const coordSearchInput = document.getElementById('coordSearchInput');
+const btnCoordSearch = document.getElementById('btnCoordSearch');
 const epochSlider = document.getElementById('epochSlider');
 const epochDisplay = document.getElementById('epochDisplay');
 const vectorSlider = document.getElementById('vectorSlider');
@@ -78,6 +82,13 @@ const valStatus = document.getElementById('valStatus');
  * Fetch real SPHEREx cutouts & catalog overlays from FastAPI backend
  */
 async function fetchRealSkyData(target) {
+  // Abort any redundant in-flight sky fetch
+  if (activeSkyAbortController) {
+    activeSkyAbortController.abort();
+  }
+  activeSkyAbortController = new AbortController();
+  const currentSignal = activeSkyAbortController.signal;
+
   showLoader(true, "Connecting to NASA/IPAC IRSA TAP...", `Querying spherex.artifact at RA=${target.ra.toFixed(4)}°, Dec=${target.dec.toFixed(4)}°`);
   stopAnimation();
   realFrames = [];
@@ -85,11 +96,14 @@ async function fetchRealSkyData(target) {
   gaiaSources = [];
   allwiseSources = [];
 
-  const url = `${API_BASE}/api/sky-patch?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&mode=epochs&include_catalogs=true&max_frames=3`;
+  // Update browser URL query parameters
+  setUrlCoordinates(target.ra, target.dec, target.fov, target.id === 'custom' ? null : target.id, target.detector);
+
+  const url = `${API_BASE}/api/sky-patch?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&mode=epochs&include_catalogs=true&max_frames=10&sampling=baseline`;
 
   try {
     loaderSubtext.textContent = "IRSA TAP querying & fetching FITS cutouts in parallel...";
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: currentSignal });
     if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`);
 
     const payload = await res.json();
@@ -131,29 +145,46 @@ async function fetchRealSkyData(target) {
       throw new Error("Invalid payload structure from backend.");
     }
   } catch (err) {
+    if (err.name === 'AbortError') {
+      console.log("Sky patch fetch aborted for new query.");
+      return;
+    }
     console.error("Pipeline Error:", err);
     renderErrorMessage(err.message);
     valStatus.textContent = "Connection Error";
     valStatus.style.color = "#ff5252";
   } finally {
-    showLoader(false);
+    if (!currentSignal.aborted) {
+      showLoader(false);
+    }
   }
 }
 
 /**
- * Preload real base64 FITS images for smooth 60 FPS blinking
+ * Preload real base64 FITS images for smooth 60 FPS blinking.
+ * Triggers renderCanvas immediately upon img.onload so the user never sees a black screen.
  */
 function preloadImages(frames) {
-  const promises = frames.map(f => {
+  let initialRenderDone = false;
+  const promises = frames.map((f, idx) => {
     return new Promise(resolve => {
       const img = new Image();
-      img.onload = () => resolve(img);
+      img.onload = () => {
+        cachedImages[idx] = img;
+        // As soon as the first frame loads, render immediately onto the canvas
+        if (!initialRenderDone && idx === 0) {
+          initialRenderDone = true;
+          renderCanvas();
+        }
+        resolve(img);
+      };
       img.onerror = () => resolve(null);
       img.src = f.data_url;
     });
   });
   return Promise.all(promises).then(images => {
     cachedImages = images.filter(Boolean);
+    renderCanvas();
   });
 }
 
@@ -168,9 +199,9 @@ function showLoader(show, title = "", subtext = "") {
 // ============================================================================
 
 /**
- * Main Canvas Render Loop
+ * Main Canvas Render Loop - Ensures colorful FITS background stays visible by default
  */
-function render() {
+function renderCanvas() {
   const w = canvas.width;
   const h = canvas.height;
   ctx.clearRect(0, 0, w, h);
@@ -181,8 +212,8 @@ function render() {
   const frameImg = cachedImages[frameIdx];
   const frameMeta = realFrames[frameIdx];
 
-  // 1. Render the REAL calibrated FITS Cutout image
-  if (frameImg) {
+  // 1. Render the REAL calibrated colorful FITS Cutout star field image
+  if (frameImg && frameImg.complete && frameImg.naturalWidth > 0) {
     ctx.drawImage(frameImg, 0, 0, w, h);
   }
 
@@ -194,14 +225,15 @@ function render() {
   // 3. Draw Astropy North-Up East-Left WCS Compass Indicator
   drawWCSCompass(ctx, w - 48, h - 48, 28);
 
-  // 4. Update Header Badges with Real SPHEREx 6-Month Survey Phase
-  const baseMjd = (realFrames.length > 0 && realFrames[0].obs_mjd) ? realFrames[0].obs_mjd : 60902.8647;
-  const currentPhase = mjdToSurveyPhaseInfo(baseMjd, frameIdx);
-
-  coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (${frameMeta.detector})`;
-  epochBadge.textContent = `SPHEREx Survey ${currentPhase.surveyPass} • ${currentPhase.shortDate} • MJD ${currentPhase.mjd.toFixed(2)}`;
-  epochDisplay.textContent = `Survey ${currentPhase.surveyPass} (${currentPhase.shortDate}) • ${frameMeta.detector}`;
+  // 4. Update Header Badges with REAL observation MJD timestamps and detector band
+  if (frameMeta) {
+    const obsDateInfo = mjdToUtcDate(frameMeta.obs_mjd);
+    coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (${frameMeta.detector || 'SPHEREx'})`;
+    epochBadge.textContent = `SPHEREx ${obsDateInfo.phaseName} • ${obsDateInfo.shortDate} • MJD ${frameMeta.obs_mjd.toFixed(3)}`;
+    epochDisplay.textContent = `[${frameIdx + 1}/${realFrames.length}] ${obsDateInfo.fullDateUTC} • MJD ${frameMeta.obs_mjd.toFixed(3)} • ${frameMeta.detector || ''} (${(frameMeta.wavelength_um || 0).toFixed(2)} μm)`;
+  }
 }
+const render = renderCanvas;
 
 /**
  * Render real Gaia DR3 optical sources, AllWISE infrared sources,
@@ -279,6 +311,13 @@ function renderAstrometricOverlay(w, h) {
  * Request real spectrophotometric SED extraction from Astropy & Photutils
  */
 async function extractSpectrumForTarget(target) {
+  // Abort any redundant in-flight spectrum fetch
+  if (activeSpecAbortController) {
+    activeSpecAbortController.abort();
+  }
+  activeSpecAbortController = new AbortController();
+  const currentSignal = activeSpecAbortController.signal;
+
   spectrumDrawer.classList.add('active');
   specTargetName.textContent = target.name;
 
@@ -290,8 +329,8 @@ async function extractSpectrumForTarget(target) {
   drawerCtx.fillText("Extracting aperture photometry across SPHEREx MEF cutouts from IRSA...", 30, drawerCanvas.height / 2);
 
   try {
-    const url = `${API_BASE}/api/spectrum?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&aperture_radius_arcsec=6.2`;
-    const res = await fetch(url);
+    const url = `${API_BASE}/api/spectrum?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&aperture_radius_arcsec=6.2&max_cutouts=18`;
+    const res = await fetch(url, { signal: currentSignal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
@@ -299,6 +338,7 @@ async function extractSpectrumForTarget(target) {
       renderSpectrumCurve(data.spectrum_102_band);
     }
   } catch (err) {
+    if (err.name === 'AbortError') return;
     drawerCtx.fillStyle = "#ff5252";
     drawerCtx.fillText(`Failed to extract spectrum: ${err.message}`, 30, drawerCanvas.height / 2);
   }
@@ -433,10 +473,10 @@ function updateTelemetry(target, payload) {
   valDetector.textContent = target.detector || "SPHEREx-All";
 
   if (currentLang === 'mm') {
-    targetTitle.innerHTML = `<strong>${target.name_mm || target.name}</strong> (${target.type_mm || target.type})`;
+    targetTitle.innerHTML = `<strong>${escapeHTML(target.name_mm || target.name)}</strong> (${escapeHTML(target.type_mm || target.type || '')})`;
     targetDesc.textContent = target.description_mm || target.description;
   } else {
-    targetTitle.innerHTML = `<strong>${target.name}</strong> (${target.type})`;
+    targetTitle.innerHTML = `<strong>${escapeHTML(target.name)}</strong> (${escapeHTML(target.type || '')})`;
     targetDesc.textContent = target.description;
   }
 }
@@ -489,8 +529,26 @@ closeSpectrumBtn.addEventListener('click', () => {
   spectrumDrawer.classList.remove('active');
 });
 
+/**
+ * Compute exact canvas coordinates from mouse/pointer events preserving 1:1 aspect ratio mapping
+ */
+function getCanvasCoordinates(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  return {
+    x,
+    y,
+    normX: Math.max(0, Math.min(1, x / canvas.width)),
+    normY: Math.max(0, Math.min(1, y / canvas.height)),
+  };
+}
+
 // Click anywhere on sky canvas to extract spectrum at that location
-canvas.addEventListener('click', () => {
+canvas.addEventListener('click', (e) => {
+  const coords = getCanvasCoordinates(e);
   extractSpectrumForTarget(currentTarget);
 });
 
@@ -514,8 +572,83 @@ targetSelect.addEventListener('change', (e) => {
   }
   const chosen = BENCHMARK_PRESETS.find(p => p.id === e.target.value) || BENCHMARK_PRESETS[1];
   currentTarget = chosen;
+  if (coordSearchInput) {
+    coordSearchInput.value = `${currentTarget.ra.toFixed(6)}, ${currentTarget.dec.toFixed(6)}`;
+  }
   fetchRealSkyData(currentTarget);
 });
+
+// Direct Coordinate Input Submission Handler
+function handleDirectCoordinateInput() {
+  if (!coordSearchInput) return;
+  const raw = coordSearchInput.value.trim();
+  if (!raw) return;
+
+  // Extract numeric coordinates (supports formats like "269.452, 4.693", "269.452 4.693", "RA:269.452 DEC:4.693")
+  const matches = raw.match(/[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?/g);
+  if (!matches || matches.length < 2) {
+    alert(currentLang === 'mm' 
+      ? "ကျေးဇူးပြု၍ RA နှင့် Dec ကိုဩဒိနိတ်များကို ထည့်သွင်းပေးပါ (ဥပမာ 269.452075, 4.693391)" 
+      : "Please enter valid coordinates as RA and Dec in degrees (e.g. 269.452075, 4.693391)");
+    return;
+  }
+
+  const ra = parseFloat(matches[0]);
+  const dec = parseFloat(matches[1]);
+  const fov = matches.length >= 3 ? Math.max(0.005, Math.min(0.5, parseFloat(matches[2]))) : (currentTarget.fov || 0.05);
+
+  if (isNaN(ra) || isNaN(dec) || ra < 0 || ra > 360 || dec < -90 || dec > 90) {
+    alert(currentLang === 'mm'
+      ? "ကိုဩဒိနိတ် အတိုင်းအတာ မှားယွင်းနေပါသည်: RA (၀ မှ ၃၆၀ ဒီဂရီ) နှင့် Dec (-၉၀ မှ +၉၀ ဒီဂရီ)"
+      : "Invalid celestial coordinates: RA must be between 0° and 360°, Dec between -90° and +90°.");
+    return;
+  }
+
+  // Check if input matches one of our official benchmark targets
+  const matchedPreset = BENCHMARK_PRESETS.find(p => Math.abs(p.ra - ra) < 0.003 && Math.abs(p.dec - dec) < 0.003);
+  if (matchedPreset) {
+    currentTarget = matchedPreset;
+    if (targetSelect) targetSelect.value = matchedPreset.id;
+  } else {
+    customTarget = {
+      id: "custom",
+      name: `Field (${ra.toFixed(4)}°, ${dec.toFixed(4)}°)`,
+      name_mm: `ကောင်းကင်နေရာ (${ra.toFixed(4)}°, ${dec.toFixed(4)}°)`,
+      type: "User-Defined Coordinate",
+      type_mm: "စိတ်ကြိုက် ကောင်းကင်နေရာ",
+      ra: ra,
+      dec: dec,
+      fov: fov,
+      detector: "SPHEREx-All",
+      description: `User-specified celestial coordinate (RA=${ra.toFixed(4)}°, Dec=${dec.toFixed(4)}°) queried from NASA/IPAC IRSA TAP.`,
+      description_mm: `အသုံးပြုသူထည့်သွင်းသော ကောင်းကင်ကိုဩဒိနိတ် (RA=${ra.toFixed(4)}°, Dec=${dec.toFixed(4)}°) ဖြစ်ပြီး IRSA မှ တိုက်ရိုက်ရယူသည်။`,
+      pm: "Astrometric field"
+    };
+    currentTarget = customTarget;
+    if (targetSelect) targetSelect.value = "custom";
+  }
+
+  // Update input text and sync modal fields
+  coordSearchInput.value = `${ra.toFixed(6)}, ${dec.toFixed(6)}`;
+  if (inputRA) inputRA.value = ra.toFixed(6);
+  if (inputDec) inputDec.value = dec.toFixed(6);
+  if (inputFOV) inputFOV.value = fov.toFixed(4);
+
+  fetchRealSkyData(currentTarget);
+}
+
+// Bind Direct Coordinate Search Bar Events
+if (btnCoordSearch) {
+  btnCoordSearch.addEventListener('click', handleDirectCoordinateInput);
+}
+if (coordSearchInput) {
+  coordSearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleDirectCoordinateInput();
+    }
+  });
+}
 
 // Custom Coordinates Submission
 closeCoordModalBtn.addEventListener('click', () => {
@@ -546,11 +679,47 @@ btnSubmitCustomCoord.addEventListener('click', () => {
   };
 
   currentTarget = customTarget;
+  if (coordSearchInput) {
+    coordSearchInput.value = `${ra.toFixed(6)}, ${dec.toFixed(6)}`;
+  }
   customModal.classList.remove('active');
   fetchRealSkyData(currentTarget);
 });
 
-// Bootstrapping on Page Load
+// Bootstrapping on Page Load: Initialize from URL coordinates or default to Barnard's Star
 document.addEventListener('DOMContentLoaded', () => {
+  const urlCoords = getUrlCoordinates();
+  if (urlCoords.hasCoords) {
+    const matchedPreset = BENCHMARK_PRESETS.find(p => p.id === urlCoords.targetId);
+    currentTarget = {
+      id: urlCoords.targetId || "custom",
+      name: matchedPreset ? matchedPreset.name : `Field (${urlCoords.ra.toFixed(4)}°, ${urlCoords.dec.toFixed(4)}°)`,
+      type: matchedPreset ? matchedPreset.type : "Custom Celestial Target",
+      ra: urlCoords.ra,
+      dec: urlCoords.dec,
+      fov: urlCoords.fov || 0.05,
+      detector: urlCoords.detector || (matchedPreset ? matchedPreset.detector : "SPHEREx-All"),
+      description: matchedPreset ? matchedPreset.description : `Coordinates specified via URL: RA=${urlCoords.ra.toFixed(4)}°, Dec=${urlCoords.dec.toFixed(4)}°`,
+      pm: matchedPreset ? matchedPreset.pm : "Field query"
+    };
+    if (targetSelect) {
+      targetSelect.value = urlCoords.targetId || "custom";
+    }
+    if (inputRA) inputRA.value = urlCoords.ra.toFixed(4);
+    if (inputDec) inputDec.value = urlCoords.dec.toFixed(4);
+    if (inputFOV) inputFOV.value = (urlCoords.fov || 0.05).toFixed(4);
+  } else if (urlCoords.targetId) {
+    const preset = BENCHMARK_PRESETS.find(p => p.id === urlCoords.targetId);
+    if (preset) {
+      currentTarget = preset;
+      if (targetSelect) targetSelect.value = preset.id;
+    }
+  }
+
+  // Populate coordinate input box with default target coordinates (Barnard's Star: 269.452075, 4.693391)
+  if (coordSearchInput) {
+    coordSearchInput.value = `${currentTarget.ra.toFixed(6)}, ${currentTarget.dec.toFixed(6)}`;
+  }
+
   fetchRealSkyData(currentTarget);
 });

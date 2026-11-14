@@ -59,7 +59,7 @@
         <div class="badge-corner-right" id="epochBadge">REAL-TIME DATA</div>
         
         <!-- Interactive Canvas: Renders Real FITS Cutouts + Astropy Proper-Motion Overlays -->
-        <canvas id="blinkerCanvas" width="960" height="600" class="viewport-canvas"></canvas>
+        <canvas id="blinkerCanvas" width="800" height="800" class="viewport-canvas"></canvas>
 
         <!-- Real-Time Data Pipeline Progress Spinner -->
         <div class="loader-overlay active" id="loaderOverlay">
@@ -68,6 +68,18 @@
           <div class="loader-subtext" id="loaderSubtext">Downloading real SPHEREx Level 2 MEF FITS files & Astropy WCS...</div>
         </div>
 
+      </div>
+
+      <!-- Direct Coordinate Input Box (Enter RA & Dec degrees) -->
+      <div class="coord-input-bar" id="coordInputBar">
+        <div class="coord-input-group">
+          <span class="coord-input-icon">⌖</span>
+          <label for="coordSearchInput" class="coord-input-label" data-i18n="lbl_coords">Coordinates (RA, Dec):</label>
+          <input type="text" id="coordSearchInput" class="coord-search-box" placeholder="e.g. 269.452075, 4.693391 (RA, Dec)" value="269.452075, 4.693391" autocomplete="off" spellcheck="false" aria-label="Celestial Coordinates RA and Dec" />
+          <button id="btnCoordSearch" class="coord-search-btn" title="Explore coordinates via IRSA">
+            <span data-i18n="btn_explore">Explore</span> ➔
+          </button>
+        </div>
       </div>
 
       <!-- PILL CONTROLS ROW (Matches exact Figma pill-shaped buttons) -->
@@ -111,6 +123,8 @@
         <input type="range" id="epochSlider" min="0" max="1" value="0" step="1" class="timeline-range">
         <span id="epochDisplay" class="timeline-speed">Survey 1 (Aug 15, 2025)</span>
         
+      </div>
+      <div class="timeline-slider-row" id="timelineRow">
         <span class="timeline-label" style="margin-left:14px;">Vector Extrapolation:</span>
         <input type="range" id="vectorSlider" min="1" max="50" value="10" step="1" class="timeline-range" style="max-width:140px;">
         <span id="vectorDisplay" class="timeline-speed">10 Years</span>

@@ -2,6 +2,47 @@
    SPHEREx Celestial Object Tracker & Nickname Studio Stylesheet
    ========================================================================== */
 
+/* Workspace Layout & Responsive Constraints */
+.main-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 32px;
+  max-width: 1440px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.left-section {
+  min-width: 0;
+  width: 100%;
+}
+
+.viewport-frame {
+  min-width: 0;
+  width: 100%;
+  max-height: calc(100vh - 110px);
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #030406;
+}
+
+.viewport-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .main-container {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Watchlist Container & Chips */
 .watchlist-container {
   display: flex;

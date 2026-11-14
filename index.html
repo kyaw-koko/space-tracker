@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sphere X - Space Telescope</title>
+  <!-- Google Fonts to match the Pixel Title and Serif Body/Nav -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Main Page Container with Background Video -->
+  <div class="page-wrapper">
+    
+    <!-- Background Video -->
+    <video class="bg-video" id="bg-video" autoplay muted playsinline poster="background.jpg">
+      <source src="sphere x.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+
+    <!-- Dark Overlay for Text Readability -->
+    <div class="overlay"></div>
+
+    <!-- Navigation Bar -->
+    <div class="navbar">
+      <div class="nav-logo">
+        <a href="#">
+          <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div class="logo-fallback" style="display: none;">
+            <span>SPHEREx</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-links">
+        <div class="nav-item"><a href="presets.html" id="nav-about">About</a></div>
+        <div class="nav-item"><a href="explore.html" id="nav-explore">Explore</a></div>
+        <div class="nav-item"><a href="track.html" id="nav-track">Track</a></div>
+        <div class="nav-item lang-switch"><a href="#" id="lang-toggle">ENG/MM</a></div>
+      </div>
+    </div>
+
+    <!-- Center Hero Content -->
+    <div class="hero-section">
+      <div class="hero-title" id="hero-title">Sphere X</div>
+      <div class="hero-subtitle" id="hero-subtitle">
+        Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer
+      </div>
+      <div class="hero-action">
+        <a href="explore.html" class="explore-btn" id="start-btn">Start Explore</a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-text" id="footer-text">
+        &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

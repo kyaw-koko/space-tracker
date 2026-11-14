@@ -1,0 +1,282 @@
+/* Reset & Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
+  background-color: #0b0c10;
+  color: #ffffff;
+  overflow-x: hidden;
+}
+
+/* --- Fixed Top Navigation Bar (Matches Home Page) --- */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 60px;
+  background: linear-gradient(to bottom, rgba(11, 12, 16, 0.95), rgba(11, 12, 16, 0));
+  z-index: 100;
+}
+
+.nav-logo img {
+  height: 75px;
+  width: auto;
+  display: block;
+}
+
+.logo-fallback {
+  width: 70px;
+  height: 70px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  font-family: sans-serif;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #fff;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+}
+
+.nav-item a {
+  text-decoration: none;
+  color: #f0f2f5;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+
+.nav-item a:hover,
+.nav-item a.active {
+  color: #8fa8ff;
+}
+
+.lang-switch {
+  margin-left: 25px;
+}
+
+/* --- Main Scrollable Layout --- */
+.about-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 140px 40px 80px 40px;
+}
+
+/* Individual Satellite Part Row (Even Rows: Left Text + Right Image) */
+.part-section {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+  padding: 40px 0;
+}
+
+/* Zig-Zag Flip (Odd Rows: Left Image + Right Text) */
+.part-section:nth-child(odd) {
+  flex-direction: row-reverse;
+}
+
+/* Text & Explanation Block */
+.part-text {
+  position: relative;
+  flex: 1;
+  max-width: 480px;
+  opacity: 0;
+  transform: translateX(-60px) translateY(30px);
+  transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Odd Row Text enters from the right */
+.part-section:nth-child(odd) .part-text {
+  transform: translateX(60px) translateY(30px);
+}
+
+.part-title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+}
+
+.part-desc {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #d8dde6;
+}
+
+/* Angled Callout Pointer Line (Even Rows: points from Left Text to Right Image) */
+.callout-line {
+  position: absolute;
+  top: 28px;
+  right: -130px;
+  width: 140px;
+  height: 1.5px;
+  background-color: rgba(255, 255, 255, 0.75);
+  transform: rotate(28deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.7s ease-out 0.3s;
+  pointer-events: none;
+}
+
+/* Angled Callout Pointer Line (Odd Rows: points from Right Text to Left Image) */
+.part-section:nth-child(odd) .callout-line {
+  right: auto;
+  left: -130px;
+  transform: rotate(-35deg) scaleX(0);
+  transform-origin: right center;
+}
+
+/* Satellite Part Image */
+.part-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transform: translateX(60px) scale(0.92);
+  transition: opacity 0.9s ease-out 0.15s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+
+/* Odd Row Image enters from the left */
+.part-section:nth-child(odd) .part-image {
+  transform: translateX(-60px) scale(0.92);
+}
+
+.part-image img {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 35px rgba(0, 0, 0, 0.85));
+}
+
+/* --- Active State When Scrolled Into View (Up or Down) --- */
+.part-section.is-visible .part-text,
+.part-section:nth-child(odd).is-visible .part-text {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
+}
+
+.part-section.is-visible .part-image,
+.part-section:nth-child(odd).is-visible .part-image {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+}
+
+.part-section.is-visible .callout-line {
+  transform: rotate(28deg) scaleX(1);
+}
+
+.part-section:nth-child(odd).is-visible .callout-line {
+  transform: rotate(-35deg) scaleX(1);
+}
+
+/* --- Bottom Scroll Indicator --- */
+.scroll-indicator {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 50;
+  transition: opacity 0.4s ease;
+}
+
+.scroll-label {
+  font-size: 0.85rem;
+  color: #cfd5e0;
+  letter-spacing: 0.5px;
+}
+
+.mouse-icon {
+  width: 22px;
+  height: 36px;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.mouse-wheel {
+  width: 3px;
+  height: 7px;
+  background-color: rgba(255, 255, 255, 0.75);
+  border-radius: 2px;
+  animation: wheelScroll 1.6s infinite ease-in-out;
+}
+
+@keyframes wheelScroll {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* --- Footer --- */
+.footer {
+  text-align: center;
+  padding: 30px 20px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* --- Responsive Mobile / Tablet Layout --- */
+@media (max-width: 900px) {
+  .navbar {
+    padding: 18px 25px;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(11, 12, 16, 0.95);
+  }
+
+  .nav-links {
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .lang-switch {
+    margin-left: 0;
+  }
+
+  .part-section,
+  .part-section:nth-child(odd) {
+    flex-direction: column-reverse;
+    text-align: center;
+    min-height: auto;
+    padding: 60px 0;
+    gap: 30px;
+  }
+
+  .callout-line {
+    display: none;
+  }
+}

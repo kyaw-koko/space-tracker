@@ -50,3 +50,36 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+/* Three.js 3D Hyperspectral Data Cube Viewport */
+.cube-container-3d {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background: radial-gradient(circle at center, #0a111e 0%, #030406 100%);
+  cursor: grab;
+  z-index: 5;
+}
+
+.cube-container-3d:active {
+  cursor: grabbing;
+}
+
+.cube-hud-badge {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background: rgba(6, 9, 14, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  color: var(--cyan-accent);
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}

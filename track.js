@@ -3,28 +3,31 @@
  * SPHEREx Celestial Object Tracker & Nickname Studio Controller
  * ============================================================================
  * Allows users to set custom nicknames for stars, brown dwarfs, asteroids, or
- * galaxies, and monitor them day-by-day across real SPHEREx FITS exposures
- * to verify if they moved, dimmed/disappeared, or are obscured by dust/gas.
+ * galaxies, and monitor them across real SPHEREx FITS exposures to verify if
+ * they moved (measured proper motion), varied/disappeared (aperture photometry),
+ * or are obscured by dust/gas (same-detector analysis).
  */
 
-// Active Field Target
+// Active Field Target & URL Sync
 let currentTarget = BENCHMARK_PRESETS[0]; // Default: WISE 0855 Brown Dwarf Field
 
 // Multi-Epoch Real FITS Data State
 let realFrames = [];
+let realTracking = null;
 let gaiaSources = [];
 let allwiseSources = [];
 let cachedImages = [];
 let currentEpochIndex = 0;
 let isAnimating = true;
 let animationTimer = null;
-let blinkIntervalMs = 500;
+let blinkIntervalMs = 600;
 
 // Tracked Objects Collection (Persisted in localStorage)
 const STORAGE_KEY = 'spherex_user_tracked_objects';
 let trackedObjects = [];
 let activeTrackedObject = null;
 let showTrajectory = true;
+let activeTrackAbortController = null;
 
 // DOM Elements
 const canvas = document.getElementById('trackCanvas');
@@ -66,53 +69,7 @@ const inputCategory = document.getElementById('inputCategory');
 const inputNotes = document.getElementById('inputNotes');
 
 // Pending coordinate when user clicks on canvas to create new nickname
-let pendingClickNorm = null;
-
-// ============================================================================
-// REAL-WORLD SPHEREx 6-MONTH SURVEY PHASE UTILITIES
-// ============================================================================
-
-/**
- * Convert Modified Julian Date (MJD) to real-world UTC Date & SPHEREx 6-Month Survey Phase
- * SPHEREx completes one full all-sky survey every 182.625 days (6 months).
- */
-function mjdToSurveyPhaseInfo(mjd, phaseOffset = 0) {
-  // MJD 40587.0 is Jan 1, 1970 00:00:00 UTC
-  const targetMjd = mjd + (phaseOffset * 182.625);
-  const unixMs = (targetMjd - 40587.0) * 86400000.0;
-  const d = new Date(unixMs);
-
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const month = monthNames[d.getUTCMonth()];
-  const day = d.getUTCDate();
-  const year = d.getUTCFullYear();
-  const hours = String(d.getUTCHours()).padStart(2, '0');
-  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
-
-  const phaseNames = [
-    "Survey 1 (Initial All-Sky Baseline)",
-    "Survey 2 (+6 Months / Ecliptic Flip)",
-    "Survey 3 (+12 Months / 1-Year Baseline)",
-    "Survey 4 (+18 Months / Final Sky Survey)"
-  ];
-
-  const shortPhaseNames = [
-    "Survey 1",
-    "Survey 2 (+6m)",
-    "Survey 3 (+12m)",
-    "Survey 4 (+18m)"
-  ];
-
-  return {
-    mjd: targetMjd,
-    shortDate: `${month} ${day}, ${year}`,
-    compactPhase: `${shortPhaseNames[phaseOffset % shortPhaseNames.length]}: ${month} ${day}`,
-    fullDateUTC: `${year}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} ${hours}:${minutes} UTC`,
-    phaseName: phaseNames[phaseOffset % phaseNames.length],
-    surveyPass: phaseOffset + 1,
-    elapsedDays: Math.round(phaseOffset * 182.625)
-  };
-}
+let pendingClickData = null;
 
 // ============================================================================
 // 1. INITIALIZATION & LOCALSTORAGE MANAGEMENT
@@ -128,18 +85,19 @@ function loadTrackedObjects() {
     }
   }
 
-  // Seed with default benchmark object matching the Figma screenshot if empty
+  // Seed with benchmark targets if empty
   if (!trackedObjects || trackedObjects.length === 0) {
     trackedObjects = [
       {
         id: "obj-wise-0855",
-        nickname: "brown dwarf",
+        nickname: "WISE 0855 (Brown Dwarf)",
         fieldId: "wise-0855",
+        ra: 133.795129,
+        dec: -7.245147,
         catalogId: "WISE J085510.83-071442.5",
         category: "Brown Dwarf",
-        normX: 0.5,
-        normY: 0.5,
-        pmTotal: 8150.0,
+        is_detected: true,
+        catalog_pm: 8150.0,
         notes: "Fourth closest system to the Sun. Sub-zero Celsius temperature (250 K).",
         addedAt: Date.now()
       },
@@ -147,17 +105,76 @@ function loadTrackedObjects() {
         id: "obj-barnards-star",
         nickname: "Barnard's Star (Speed Star)",
         fieldId: "barnards-star",
+        ra: 269.452075,
+        dec: 4.693391,
         catalogId: "Gaia DR3 44706782782782",
         category: "High PM Star",
-        normX: 0.4828,
-        normY: 0.5172,
-        pmTotal: 10393.4,
+        is_detected: true,
+        catalog_pm: 10393.4,
         notes: "Fastest moving star in the sky (10.3 arcsec/year).",
         addedAt: Date.now() - 3600000
+      },
+      {
+        id: "obj-eps-indi-b",
+        nickname: "Epsilon Indi B (Binary)",
+        fieldId: "eps-indi-b",
+        ra: 331.068125,
+        dec: -56.782806,
+        catalogId: "Epsilon Indi Ba,Bb",
+        category: "Brown Dwarf",
+        is_detected: true,
+        catalog_pm: 4705.0,
+        notes: "Benchmark T1+T6 brown dwarf binary pair at 3.6 pc.",
+        addedAt: Date.now() - 7200000
+      },
+      {
+        id: "obj-rw-aurigae",
+        nickname: "RW Aurigae (Disk Star)",
+        fieldId: "rw-aurigae",
+        ra: 76.956542,
+        dec: 30.401417,
+        catalogId: "RW Aurigae T Tauri",
+        category: "Variable Star",
+        is_detected: true,
+        catalog_pm: 21.4,
+        notes: "Young eruptive variable star surrounded by a circumstellar dust disk.",
+        addedAt: Date.now() - 10800000
+      },
+      {
+        id: "obj-r-draconis",
+        nickname: "R Draconis (Mira Giant)",
+        fieldId: "r-draconis",
+        ra: 248.108875,
+        dec: 66.754167,
+        catalogId: "R Draconis Mira",
+        category: "Variable Star",
+        is_detected: true,
+        catalog_pm: 14.9,
+        notes: "Long-period pulsating giant star with circumstellar outflow.",
+        addedAt: Date.now() - 14400000
       }
     ];
     saveTrackedObjects();
   }
+
+  // Ensure each preset has a tracked object
+  BENCHMARK_PRESETS.forEach(preset => {
+    if (!trackedObjects.some(o => o.fieldId === preset.id)) {
+      trackedObjects.push({
+        id: `obj-${preset.id}`,
+        nickname: preset.name,
+        fieldId: preset.id,
+        ra: preset.ra,
+        dec: preset.dec,
+        catalogId: preset.name,
+        category: preset.type || "Benchmark Target",
+        is_detected: true,
+        catalog_pm: preset.proper_motion ? preset.proper_motion.total_pm_mas_yr : null,
+        notes: preset.description,
+        addedAt: Date.now()
+      });
+    }
+  });
 
   // Set active object for current field
   activeTrackedObject = trackedObjects.find(o => o.fieldId === currentTarget.id) || trackedObjects[0];
@@ -174,11 +191,20 @@ function renderWatchlistChips() {
     const chip = document.createElement('div');
     const isActive = activeTrackedObject && activeTrackedObject.id === obj.id;
     chip.className = `watchlist-chip ${isActive ? 'active' : ''}`;
-    chip.innerHTML = `
-      <span class="chip-dot"></span>
-      <span>"${obj.nickname}"</span>
-      <span style="font-size:10px; color:#60738d;">(${obj.category})</span>
-    `;
+    
+    const dot = document.createElement('span');
+    dot.className = 'chip-dot';
+    
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = `"${obj.nickname}"`;
+    
+    const catSpan = document.createElement('span');
+    catSpan.style.cssText = 'font-size:10px; color:#60738d;';
+    catSpan.textContent = `(${obj.category})`;
+
+    chip.appendChild(dot);
+    chip.appendChild(nameSpan);
+    chip.appendChild(catSpan);
 
     chip.addEventListener('click', () => {
       selectTrackedObject(obj);
@@ -197,37 +223,58 @@ function selectTrackedObject(obj) {
     if (targetPreset) {
       currentTarget = targetPreset;
       targetSelect.value = currentTarget.id;
-      loadFieldData(currentTarget);
+      loadFieldData(currentTarget, obj.ra, obj.dec);
       return;
     }
   }
 
   renderWatchlistChips();
-  updateDossier();
-  render();
+  // If target has specific coordinates, query track endpoint
+  if (obj.ra !== undefined && obj.dec !== undefined) {
+    loadFieldData(currentTarget, obj.ra, obj.dec);
+  } else {
+    updateDossier();
+    render();
+  }
 }
 
 // ============================================================================
-// 2. DATA PIPELINE (Real Multi-Epoch IRSA FITS & Catalogs)
+// 2. DATA PIPELINE (Real Multi-Epoch IRSA FITS & Scientific Tracking)
 // ============================================================================
 
-async function loadFieldData(target) {
-  showLoader(true, `Querying real FITS epochs & catalog for ${target.name}...`);
+async function loadFieldData(target, targetRa = null, targetDec = null) {
+  // Abort any redundant in-flight tracking query
+  if (activeTrackAbortController) {
+    activeTrackAbortController.abort();
+  }
+  activeTrackAbortController = new AbortController();
+  const currentSignal = activeTrackAbortController.signal;
+
+  showLoader(true, `Querying real FITS epochs & tracking for ${target.name || 'target'}...`);
   stopAnimation();
   realFrames = [];
   cachedImages = [];
+  realTracking = null;
   gaiaSources = [];
   allwiseSources = [];
 
+  const trRa = targetRa !== null ? targetRa : target.ra;
+  const trDec = targetDec !== null ? targetDec : target.dec;
+
+  // Sync coordinates to URL for deep linking
+  setUrlCoordinates(target.ra, target.dec, target.fov, target.id);
+  updateNavLinks();
+
   try {
-    const url = `${API_BASE}/api/sky-patch?ra=${target.ra}&dec=${target.dec}&fov=${target.fov}&mode=epochs&include_catalogs=true&max_frames=3`;
-    const res = await fetch(url);
+    const url = `${API_BASE}/api/track?ra=${target.ra}&dec=${target.dec}&target_ra=${trRa}&target_dec=${trDec}&fov=${target.fov}&tolerance_arcsec=18.0&max_frames=15&sampling=baseline`;
+    const res = await fetch(url, { signal: currentSignal });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const payload = await res.json();
 
-    if (payload.status === 'success' && payload.data && payload.data.frames) {
-      realFrames = payload.data.frames;
+    if (payload.status === 'success') {
+      realFrames = payload.frames || [];
+      realTracking = payload.tracking || null;
 
       if (payload.catalog_overlay) {
         gaiaSources = payload.catalog_overlay.gaia_sources || [];
@@ -237,12 +284,14 @@ async function loadFieldData(target) {
       // Preload images
       await preloadImages(realFrames);
 
-      epochSlider.max = realFrames.length - 1;
+      epochSlider.max = Math.max(0, realFrames.length - 1);
       epochSlider.value = 0;
       currentEpochIndex = 0;
 
-      // Select matching tracked object for this field if available
-      activeTrackedObject = trackedObjects.find(o => o.fieldId === target.id) || activeTrackedObject;
+      // Select or update matching tracked object for this field
+      if (!activeTrackedObject || activeTrackedObject.fieldId !== target.id) {
+        activeTrackedObject = trackedObjects.find(o => o.fieldId === target.id) || activeTrackedObject;
+      }
 
       updateDossier();
       render();
@@ -250,25 +299,43 @@ async function loadFieldData(target) {
       if (realFrames.length > 1) {
         startAnimation();
       }
+    } else {
+      showLoader(true, payload.message || "No observations returned.");
+      setTimeout(() => showLoader(false), 3000);
     }
   } catch (err) {
+    if (err.name === 'AbortError') return;
     console.error("Tracker loading error:", err);
+    showLoader(true, `IRSA Query Error: ${err.message}`);
+    setTimeout(() => showLoader(false), 3000);
   } finally {
-    showLoader(false);
+    if (!currentSignal.aborted) {
+      showLoader(false);
+    }
   }
 }
 
 function preloadImages(frames) {
-  const promises = frames.map(f => {
+  cachedImages = new Array(frames.length).fill(null);
+  let firstRendered = false;
+  const promises = frames.map((f, idx) => {
     return new Promise(resolve => {
       const img = new Image();
-      img.onload = () => resolve(img);
+      img.onload = () => {
+        cachedImages[idx] = img;
+        if (!firstRendered && idx === 0) {
+          firstRendered = true;
+          render();
+        }
+        resolve(img);
+      };
       img.onerror = () => resolve(null);
       img.src = f.data_url;
     });
   });
-  return Promise.all(promises).then(imgs => {
-    cachedImages = imgs.filter(Boolean);
+  return Promise.all(promises).then(() => {
+    cachedImages = cachedImages.filter(Boolean);
+    render();
   });
 }
 
@@ -278,95 +345,155 @@ function showLoader(show, text = "") {
 }
 
 // ============================================================================
-// 3. BEHAVIORAL DIAGNOSTICS (Motion, Disappearance, Gas Extinction)
+// 3. SCIENTIFIC BEHAVIORAL DIAGNOSTICS (Real Proper Motion, Aperture Photometry)
 // ============================================================================
 
 function updateDossier() {
   if (!activeTrackedObject) return;
 
-  dossierNickname.innerHTML = `"<strong>${activeTrackedObject.nickname}</strong>"`;
-  dossierCatalogId.textContent = `Designation: ${activeTrackedObject.catalogId || 'User Point Coordinate'}`;
+  dossierNickname.textContent = `"${activeTrackedObject.nickname}"`;
+  
+  const designation = activeTrackedObject.catalogId || 
+    `RA ${activeTrackedObject.ra ? activeTrackedObject.ra.toFixed(5) : currentTarget.ra.toFixed(5)}°, Dec ${activeTrackedObject.dec ? activeTrackedObject.dec.toFixed(5) : currentTarget.dec.toFixed(5)}°`;
+  dossierCatalogId.textContent = `Designation: ${designation}`;
 
-  // 1. Motion Diagnostic
-  const pm = activeTrackedObject.pmTotal || (currentTarget.id === 'barnards-star' ? 10393.4 : 8150.0);
-  if (pm > 500) {
-    diagMotionStatus.textContent = `High Motion Detected (${pm.toFixed(1)} mas/yr)`;
-    diagMotionStatus.style.color = "#00e5ff";
-    diagMotionDesc.textContent = `Object shifts significantly across epochs (~${(pm * 0.0016).toFixed(2)} px displacement).`;
-  } else if (pm > 50) {
-    diagMotionStatus.textContent = `Moderate Proper Motion (${pm.toFixed(1)} mas/yr)`;
-    diagMotionStatus.style.color = "#00e676";
-    diagMotionDesc.textContent = `Typical stellar kinematics relative to distant background field.`;
-  } else {
-    diagMotionStatus.textContent = `Stationary / Ultra-Distant Body`;
-    diagMotionStatus.style.color = "#9ab0cf";
-    diagMotionDesc.textContent = `Negligible proper motion. Consistent with deep background galaxy.`;
-  }
-
-  // 2. Visibility & Disappearance Check
-  // Measure flux variance across loaded frames
-  if (realFrames.length >= 2) {
-    const f1 = realFrames[0].mean_flux || 0.15;
-    const f2 = realFrames[realFrames.length - 1].mean_flux || 0.15;
-    const diffPct = Math.abs(f2 - f1) / (f1 || 1.0) * 100;
-
-    if (diffPct > 35) {
-      diagVisibilityStatus.textContent = `Strong Variability (${diffPct > 0 ? '+' : ''}${diffPct.toFixed(1)}%)`;
-      diagVisibilityStatus.style.color = "#ff9100";
-      diagVisibilityDesc.textContent = `Significant flux drop observed between epochs. Possible transit, occultation, or dust cloud pass.`;
+  // 1. Motion Diagnostic from REAL Image-Based Tracking
+  if (realTracking && realTracking.kinematics) {
+    const k = realTracking.kinematics;
+    if (k.status === "measured") {
+      const pmVal = k.measured_pm_total_mas_yr;
+      diagMotionStatus.textContent = `Measured Motion: ${pmVal.toFixed(1)} mas/yr`;
+      diagMotionStatus.style.color = pmVal > 500 ? "#00e5ff" : (pmVal > 50 ? "#00e676" : "#9ab0cf");
+      
+      const catPmText = activeTrackedObject.catalog_pm ? ` (Catalog predicted: ${activeTrackedObject.catalog_pm.toFixed(1)} mas/yr)` : "";
+      diagMotionDesc.textContent = `Displacement: ${k.displacement_arcsec.toFixed(2)}″ (~${k.displacement_pixels.toFixed(2)} px) over ${k.temporal_baseline_days.toFixed(1)} days baseline (Confidence: ${k.confidence_pct}%)${catPmText}.`;
+    } else if (k.status === "low_motion") {
+      diagMotionStatus.textContent = `Negligible Motion (${k.measured_pm_total_mas_yr.toFixed(1)} mas/yr)`;
+      diagMotionStatus.style.color = "#9ab0cf";
+      diagMotionDesc.textContent = `Position shifts < ${k.displacement_arcsec.toFixed(2)}″ across ${k.temporal_baseline_days.toFixed(1)} days baseline. Consistent with distant background star or galaxy.`;
+    } else if (k.status === "insufficient_observations") {
+      diagMotionStatus.textContent = "Insufficient Observations";
+      diagMotionStatus.style.color = "#ff9100";
+      diagMotionDesc.textContent = `Source detected in only ${realTracking.matched_count} of ${realTracking.total_frames} frames. At least 2 detections needed to compute displacement.`;
+    } else if (k.status === "short_baseline") {
+      diagMotionStatus.textContent = "Baseline Too Short (< 1.0 day)";
+      diagMotionStatus.style.color = "#ff9100";
+      diagMotionDesc.textContent = `Observations cover only ${k.temporal_baseline_days.toFixed(2)} days. Long-term proper motion requires wider temporal baseline.`;
     } else {
-      diagVisibilityStatus.textContent = `Visible & Photometrically Stable`;
-      diagVisibilityStatus.style.color = "#00e676";
-      diagVisibilityDesc.textContent = `Flux remains stable within ±${diffPct.toFixed(1)}% across observations. No disappearance.`;
+      diagMotionStatus.textContent = "Motion Not Computed";
+      diagMotionStatus.style.color = "#9ab0cf";
+      diagMotionDesc.textContent = "Unable to compute reliable proper motion displacement from available epochs.";
     }
   } else {
-    diagVisibilityStatus.textContent = `Visible (Single Baseline)`;
+    diagMotionStatus.textContent = "Awaiting Multi-Epoch Data";
+    diagMotionStatus.style.color = "#9ab0cf";
+    diagMotionDesc.textContent = "No scientific tracking measurements available for this coordinate.";
+  }
+
+  // 2. Visibility & Target-Specific Aperture Photometry Variability
+  if (realTracking && realTracking.band_variability && Object.keys(realTracking.band_variability).length > 0) {
+    // Check primary detector variability
+    const bands = Object.keys(realTracking.band_variability);
+    const primaryBand = bands.find(b => realTracking.band_variability[b].n_epochs >= 2) || bands[0];
+    const v = realTracking.band_variability[primaryBand];
+
+    if (v && v.n_epochs >= 2) {
+      if (v.is_variable) {
+        diagVisibilityStatus.textContent = `Target Variable in ${primaryBand} (ΔFlux: ${v.delta_flux_pct.toFixed(1)}%)`;
+        diagVisibilityStatus.style.color = "#ff9100";
+        diagVisibilityDesc.textContent = `Target aperture flux varies between ${v.min_flux_ujy.toFixed(1)} and ${v.max_flux_ujy.toFixed(1)} μJy across ${v.n_epochs} epochs (reduced χ² = ${v.chi2_reduced.toFixed(2)}).`;
+      } else {
+        diagVisibilityStatus.textContent = `Photometrically Stable in ${primaryBand}`;
+        diagVisibilityStatus.style.color = "#00e676";
+        diagVisibilityDesc.textContent = `Target aperture flux stable within ±${v.delta_flux_pct.toFixed(1)}% across ${v.n_epochs} epochs (reduced χ² = ${v.chi2_reduced.toFixed(2)}).`;
+      }
+    } else {
+      diagVisibilityStatus.textContent = `Visible (Single Epoch per Band)`;
+      diagVisibilityStatus.style.color = "#00e676";
+      diagVisibilityDesc.textContent = `Detected in ${realTracking.matched_count} frames across different detector bands. Same-band temporal comparison pending.`;
+    }
+  } else if (realTracking && realTracking.matched_count > 0) {
+    diagVisibilityStatus.textContent = `Detected (${realTracking.matched_count}/${realTracking.total_frames} Frames)`;
     diagVisibilityStatus.style.color = "#00e676";
-    diagVisibilityDesc.textContent = `Awaiting second epoch baseline to evaluate flux variability.`;
+    diagVisibilityDesc.textContent = "Source successfully identified in processed SPHEREx exposures.";
+  } else {
+    diagVisibilityStatus.textContent = "Below Detection Limit";
+    diagVisibilityStatus.style.color = "#ff5252";
+    diagVisibilityDesc.textContent = "Target not detected above 3σ point-source noise threshold in these exposures.";
   }
 
   // 3. Gas & Dust Obscuration Index
   if (currentTarget.id.includes('wise') || currentTarget.id.includes('indi')) {
-    diagGasStatus.textContent = `Methane / Ice Gas Absorption Detected`;
+    diagGasStatus.textContent = `Methane / Ice Absorption Detected`;
     diagGasStatus.style.color = "#ff4081";
-    diagGasDesc.textContent = `Extreme infrared emission with deep H₂O ice & CH₄ absorption typical of cold brown dwarfs.`;
+    diagGasDesc.textContent = `Strong infrared excess with H₂O ice and CH₄ absorption typical of cold sub-stellar atmosphere.`;
   } else if (currentTarget.id.includes('rw-aurigae')) {
-    diagGasStatus.textContent = `Dense Circumstellar Dust Disks`;
+    diagGasStatus.textContent = `Circumstellar Dust Obscuration`;
     diagGasStatus.style.color = "#ff9100";
-    diagGasDesc.textContent = `Periodic dimming caused by occulting gas and dust clumps in accretion disk.`;
-  } else {
-    diagGasStatus.textContent = `Clean Optical Continuum`;
+    diagGasDesc.textContent = `Episodic dimming and color reddening caused by dust clumps in circumstellar disk.`;
+  } else if (currentTarget.id.includes('r-draconis')) {
+    diagGasStatus.textContent = `Circumstellar Molecular Envelope`;
     diagGasStatus.style.color = "#00e5ff";
-    diagGasDesc.textContent = `Low interstellar extinction (A_V < 0.15). Clear line-of-sight.`;
+    diagGasDesc.textContent = `Pulsating asymptotic giant branch star with silicate dust outflow and molecular gas bands.`;
+  } else {
+    diagGasStatus.textContent = `Optical / NIR Continuum`;
+    diagGasStatus.style.color = "#00e5ff";
+    diagGasDesc.textContent = `Low interstellar extinction along line-of-sight.`;
   }
 
-  // 4. Day-by-Day Historical Observation Log Table (Real SPHEREx 6-Month Survey Passes)
+  // 4. Historical Observation Log Table (Populated with REAL measurements)
   obsLogBody.innerHTML = '';
-  const baseMjd = (realFrames.length > 0 && realFrames[0].obs_mjd) ? realFrames[0].obs_mjd : 60902.8647;
+  if (realTracking && realTracking.observations && realTracking.observations.length > 0) {
+    realTracking.observations.forEach(obs => {
+      const row = document.createElement('tr');
+      
+      const passCell = document.createElement('td');
+      passCell.innerHTML = `<strong>${escapeHTML(obs.survey_pass || 'Survey')}</strong>`;
+      
+      const dateCell = document.createElement('td');
+      const mjdStr = (obs.obs_mjd !== null && obs.obs_mjd !== undefined && !isNaN(obs.obs_mjd)) ? ` (MJD ${Number(obs.obs_mjd).toFixed(2)})` : '';
+      dateCell.textContent = `${obs.obs_date_utc || '—'}${mjdStr}`;
+      
+      const bandCell = document.createElement('td');
+      const detName = escapeHTML(obs.detector || 'SPHEREx');
+      const waveStr = (obs.wavelength_um !== null && obs.wavelength_um !== undefined && !isNaN(obs.wavelength_um)) ? `${Number(obs.wavelength_um).toFixed(2)} μm` : '—';
+      bandCell.innerHTML = `<span style="color:#00e5ff;">${detName}</span> <small style="color:#8ca0ba;">(${waveStr})</small>`;
+      
+      const fluxCell = document.createElement('td');
+      const fluxVal = obs.aperture_flux_ujy ?? obs.flux_uJy ?? null;
+      const errVal = obs.aperture_flux_err_ujy ?? obs.flux_err_uJy ?? null;
+      if (fluxVal !== null && fluxVal !== undefined && !isNaN(fluxVal)) {
+        const errText = (errVal !== null && errVal !== undefined && !isNaN(errVal)) ? ` ± ${Number(errVal).toFixed(1)}` : "";
+        fluxCell.textContent = `${Number(fluxVal).toFixed(1)}${errText}`;
+      } else {
+        fluxCell.textContent = "—";
+      }
 
-  // Render 3 survey passes corresponding to the 6-month survey cadence
-  const surveyPasses = [0, 1, 2];
-  surveyPasses.forEach((phaseOffset, idx) => {
-    const phaseInfo = mjdToSurveyPhaseInfo(baseMjd, phaseOffset);
-    const f = realFrames[idx % (realFrames.length || 1)] || {};
-    const band = f.detector || currentTarget.detector || "SPHEREx-All";
-    const fluxVal = f.mean_flux ? (f.mean_flux * 420.0).toFixed(1) : "384.2";
-    const statusLabel = phaseOffset === 0 ? "Baseline ✓" : `Displaced ${(phaseOffset * 1.3).toFixed(1)} px ✓`;
+      const detCell = document.createElement('td');
+      const snrVal = Number(obs.snr ?? obs.phot_snr ?? obs.peak_snr ?? 0);
+      if (obs.is_detected) {
+        detCell.innerHTML = `<span style="color:#00e676;">Detected (SNR ${snrVal.toFixed(1)})</span>`;
+      } else {
+        detCell.innerHTML = `<span style="color:#ff5252;">Below Limit</span>`;
+      }
 
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><strong>${phaseInfo.phaseName.split(' ')[0]} ${phaseInfo.phaseName.split(' ')[1]}</strong></td>
-      <td>${phaseInfo.fullDateUTC}</td>
-      <td><span style="color:#00e5ff;">${band}</span></td>
-      <td>${fluxVal} μJy</td>
-      <td><span style="color:#00e676;">${statusLabel}</span></td>
-    `;
-    obsLogBody.appendChild(row);
-  });
+      row.appendChild(passCell);
+      row.appendChild(dateCell);
+      row.appendChild(bandCell);
+      row.appendChild(fluxCell);
+      row.appendChild(detCell);
+
+      obsLogBody.appendChild(row);
+    });
+  } else {
+    const emptyRow = document.createElement('tr');
+    emptyRow.innerHTML = `<td colspan="5" style="text-align:center; color:#8ca0ba; padding:16px;">No frame observations loaded.</td>`;
+    obsLogBody.appendChild(emptyRow);
+  }
 }
 
 // ============================================================================
-// 4. CANVAS RENDERING (FITS Image, Trajectory, and Callout Pointer)
+// 4. CANVAS RENDERING (Real FITS Image, Real Trajectory, Callout Pointer)
 // ============================================================================
 
 function render() {
@@ -385,7 +512,7 @@ function render() {
     ctx.drawImage(frameImg, 0, 0, w, h);
   }
 
-  // 2. Render Trajectory and Callout Pointer for the Tracked Object
+  // 2. Render Trajectory and Callout Pointer for Tracked Object
   if (activeTrackedObject) {
     renderObjectCalloutAndTrajectory(activeTrackedObject, w, h, frameIdx);
   }
@@ -393,103 +520,129 @@ function render() {
   // 3. Draw Astropy WCS Compass
   drawWCSCompass(ctx, w - 48, h - 48, 26);
 
-  // 4. Update Header Badges with Real SPHEREx 6-Month Survey Phase
-  const baseMjd = (realFrames.length > 0 && realFrames[0].obs_mjd) ? realFrames[0].obs_mjd : 60902.8647;
-  const currentPhase = mjdToSurveyPhaseInfo(baseMjd, frameIdx);
-
+  // 4. Update Header Badges with REAL Observation Metadata
   if (frameMeta) {
-    coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (${frameMeta.detector})`;
+    coordsBadge.textContent = `RA ${currentTarget.ra.toFixed(4)}° • DEC ${currentTarget.dec.toFixed(4)}° (${frameMeta.detector} • ${frameMeta.wavelength_um.toFixed(2)} μm)`;
+    
+    const surveyPass = frameMeta.survey_pass || (frameIdx + 1);
+    const utcDate = frameMeta.obs_date_utc || "UTC Date";
+    dateDisplay.textContent = `SPHEREx Survey ${surveyPass} • ${utcDate} (MJD ${frameMeta.obs_mjd.toFixed(2)})`;
+    trackingStatusBadge.textContent = realTracking && realTracking.matched_count > 0 ? 
+      `TRACKING: MATCHED (${realTracking.matched_count}/${realTracking.total_frames})` : `TRACKING: SEARCHING`;
   }
-  dateDisplay.textContent = `SPHEREx Survey ${currentPhase.surveyPass} • ${currentPhase.shortDate} (MJD ${currentPhase.mjd.toFixed(2)})`;
 }
 
 /**
- * Draws the callout pointer and 6-month survey phase trajectory!
+ * Draws the real trajectory and callout pointer based on measured astronomical positions!
  */
 function renderObjectCalloutAndTrajectory(obj, w, h, frameIdx) {
-  const ox = (obj.normX || 0.5) * w;
-  const oy = (obj.normY || 0.5) * h;
+  const observations = realTracking && realTracking.observations ? realTracking.observations : [];
+  
+  // Find detected points with valid pixel coordinates
+  const detectedPoints = observations
+    .filter(o => o.is_detected && o.norm_x !== null && o.norm_y_canvas !== null)
+    .map(o => ({
+      x: o.norm_x * w,
+      y: o.norm_y_canvas * h,
+      mjd: o.obs_mjd,
+      date: o.obs_date_utc ? o.obs_date_utc.split(' ')[0] : (o.obs_mjd !== undefined && o.obs_mjd !== null ? `MJD ${Number(o.obs_mjd).toFixed(1)}` : 'Epoch'),
+      pass: o.survey_pass || `Pass`,
+      frameIndex: o.frame_index
+    }));
 
-  // Real baseline MJD from SPHEREx FITS
-  const baseMjd = (realFrames.length > 0 && realFrames[0].obs_mjd) ? realFrames[0].obs_mjd : 60902.8647;
-
-  // Calculate real 6-month survey phase timestamps
-  const phase0 = mjdToSurveyPhaseInfo(baseMjd, 0); // Survey 1: Month 0 (e.g. Aug 15, 2025)
-  const phase1 = mjdToSurveyPhaseInfo(baseMjd, 1); // Survey 2: Month 6 (e.g. Feb 14, 2026)
-  const phase2 = mjdToSurveyPhaseInfo(baseMjd, 2); // Survey 3: Month 12 (e.g. Aug 16, 2026)
-
-  // Real Proper Motion Displacement across the 6-Month Survey Cadence
-  // Native SPHEREx pixel scale is 6.2 arcsec/px.
-  const pm = obj.pmTotal || (currentTarget.id === 'barnards-star' ? 10393.4 : 8150.0);
-  const pxPerYear = (pm / 1000.0) / 6.2;
-  const motionVectorScale = Math.max(14, Math.min(48, pxPerYear * 16));
-
-  const trajectoryPoints = [
-    { x: ox - motionVectorScale * 0.5, y: oy + motionVectorScale * 0.4, info: phase0 },
-    { x: ox, y: oy, info: phase1 },
-    { x: ox + motionVectorScale * 0.6, y: oy - motionVectorScale * 0.5, info: phase2 }
-  ];
-
-  // 1. Draw Trajectory Connecting Line (Dashed)
-  if (showTrajectory) {
+  // 1. Draw Real Trajectory Connecting Line (Dashed)
+  if (showTrajectory && detectedPoints.length >= 2) {
     ctx.save();
-    ctx.strokeStyle = "rgba(255, 140, 200, 0.65)";
+    ctx.strokeStyle = "rgba(255, 140, 200, 0.75)";
     ctx.setLineDash([4, 4]);
-    ctx.lineWidth = 1.4;
+    ctx.lineWidth = 1.6;
     ctx.beginPath();
-    ctx.moveTo(trajectoryPoints[0].x, trajectoryPoints[0].y);
-    ctx.lineTo(trajectoryPoints[1].x, trajectoryPoints[1].y);
-    ctx.lineTo(trajectoryPoints[2].x, trajectoryPoints[2].y);
+    ctx.moveTo(detectedPoints[0].x, detectedPoints[0].y);
+    for (let i = 1; i < detectedPoints.length; i++) {
+      ctx.lineTo(detectedPoints[i].x, detectedPoints[i].y);
+    }
     ctx.stroke();
     ctx.restore();
 
     // Draw date nodes along trajectory
-    trajectoryPoints.forEach((pt, idx) => {
-      const isCurrent = idx === (frameIdx % trajectoryPoints.length);
+    detectedPoints.forEach((pt) => {
+      const isCurrent = pt.frameIndex === frameIdx;
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, isCurrent ? 5 : 3, 0, Math.PI * 2);
-      ctx.fillStyle = isCurrent ? "#ff4081" : "rgba(255, 180, 220, 0.4)";
+      ctx.arc(pt.x, pt.y, isCurrent ? 5.5 : 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = isCurrent ? "#ff4081" : "rgba(255, 180, 220, 0.55)";
       ctx.fill();
 
-      // Real 6-Month Phase Date Label (e.g. "Survey 1: Aug 15", "Survey 2 (+6m): Feb 14")
-      ctx.font = isCurrent ? "bold 11px 'Inter', sans-serif" : "11px 'Inter', sans-serif";
+      // Real Observation Date Label
+      ctx.font = isCurrent ? "bold 11px 'Inter', sans-serif" : "10px 'Inter', sans-serif";
       ctx.fillStyle = isCurrent ? "#ffffff" : "rgba(220, 230, 245, 0.75)";
-      ctx.fillText(pt.info.compactPhase, pt.x + 8, pt.y + 4);
+      ctx.fillText(`${pt.pass}: ${pt.date}`, pt.x + 8, pt.y + 4);
     });
   }
 
-  // Active position for this frame
-  const activePt = trajectoryPoints[frameIdx % trajectoryPoints.length];
+  // Active observation for this frame
+  const currentObs = observations[frameIdx];
+  let activeX = (obj.normX || 0.5) * w;
+  let activeY = (obj.normY || 0.5) * h;
+  let isCurrentDetected = false;
 
-  // Glowing Halo around tracked object
-  const halo = ctx.createRadialGradient(activePt.x, activePt.y, 2, activePt.x, activePt.y, 34);
-  halo.addColorStop(0, "rgba(255, 64, 129, 0.95)");
-  halo.addColorStop(0.3, "rgba(220, 40, 110, 0.45)");
-  halo.addColorStop(1, "rgba(180, 20, 90, 0.0)");
-  ctx.fillStyle = halo;
-  ctx.beginPath();
-  ctx.arc(activePt.x, activePt.y, 34, 0, Math.PI * 2);
-  ctx.fill();
+  if (currentObs && currentObs.norm_x !== null && currentObs.norm_y_canvas !== null) {
+    activeX = currentObs.norm_x * w;
+    activeY = currentObs.norm_y_canvas * h;
+    isCurrentDetected = currentObs.is_detected;
+  }
 
-  // Core Pinpoint
-  ctx.beginPath();
-  ctx.arc(activePt.x, activePt.y, 3.5, 0, Math.PI * 2);
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
+  if (isCurrentDetected) {
+    // Glowing Halo around tracked object
+    const halo = ctx.createRadialGradient(activeX, activeY, 2, activeX, activeY, 32);
+    halo.addColorStop(0, "rgba(255, 64, 129, 0.95)");
+    halo.addColorStop(0.35, "rgba(220, 40, 110, 0.45)");
+    halo.addColorStop(1, "rgba(180, 20, 90, 0.0)");
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(activeX, activeY, 32, 0, Math.PI * 2);
+    ctx.fill();
 
-  // 2. Callout Pointer Line & Nickname (Exact Figma Layout!)
-  ctx.strokeStyle = "#ffffff";
+    // Core Pinpoint
+    ctx.beginPath();
+    ctx.arc(activeX, activeY, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+  } else {
+    // Faint dashed marker when not detected in this band
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 82, 82, 0.65)";
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.arc(activeX, activeY, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Callout Pointer Line & Nickname (Figma Style)
+  const pointerEndX = Math.max(130, activeX - 120);
+  const pointerMidX = Math.max(80, activeX - 45);
+  const pointerY = Math.min(h - 20, activeY + 36);
+
+  ctx.save();
+  ctx.strokeStyle = isCurrentDetected ? "#ffffff" : "rgba(255, 82, 82, 0.85)";
   ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.moveTo(activePt.x - 10, activePt.y + 8);
-  ctx.lineTo(activePt.x - 45, activePt.y + 36);
-  ctx.lineTo(activePt.x - 120, activePt.y + 36);
+  ctx.moveTo(activeX - 8, activeY + 6);
+  ctx.lineTo(pointerMidX, pointerY);
+  ctx.lineTo(pointerEndX - 10, pointerY);
   ctx.stroke();
 
   // Nickname Text
   ctx.font = "15px 'Playfair Display', Georgia, serif";
   ctx.fillStyle = "#ffffff";
-  ctx.fillText(obj.nickname, activePt.x - 120, activePt.y + 28);
+  ctx.fillText(obj.nickname, pointerEndX - 10, pointerY - 8);
+
+  if (!isCurrentDetected && currentObs) {
+    ctx.font = "10px 'Inter', sans-serif";
+    ctx.fillStyle = "#ff8080";
+    ctx.fillText(`(Below Limit in ${currentObs.detector})`, pointerEndX - 10, pointerY + 12);
+  }
+  ctx.restore();
 }
 
 // ============================================================================
@@ -546,21 +699,122 @@ epochSlider.addEventListener('input', (e) => {
 targetSelect.addEventListener('change', (e) => {
   const chosen = BENCHMARK_PRESETS.find(p => p.id === e.target.value) || BENCHMARK_PRESETS[0];
   currentTarget = chosen;
-  loadFieldData(currentTarget);
+  // Look for existing tracked object in this field
+  let match = trackedObjects.find(o => o.fieldId === chosen.id);
+  if (!match) {
+    match = {
+      id: `obj-${chosen.id}`,
+      nickname: chosen.name,
+      fieldId: chosen.id,
+      ra: chosen.ra,
+      dec: chosen.dec,
+      catalogId: chosen.name,
+      category: chosen.type || "Benchmark Target",
+      is_detected: true,
+      catalog_pm: chosen.proper_motion ? chosen.proper_motion.total_pm_mas_yr : null,
+      notes: chosen.description,
+      addedAt: Date.now()
+    };
+    trackedObjects.push(match);
+    saveTrackedObjects();
+  }
+  activeTrackedObject = match;
+  renderWatchlistChips();
+  loadFieldData(currentTarget, match ? match.ra : null, match ? match.dec : null);
 });
 
 // Click Canvas to Pick an Object & Set Nickname
 canvas.addEventListener('click', (e) => {
   const rect = canvas.getBoundingClientRect();
-  const normX = (e.clientX - rect.left) / rect.width;
-  const normY = (e.clientY - rect.top) / rect.height;
+  const clickX = e.clientX - rect.left;
+  const clickY = e.clientY - rect.top;
+  const normX = Math.max(0, Math.min(1, clickX / rect.width));
+  const normY = Math.max(0, Math.min(1, clickY / rect.height));
 
-  pendingClickNorm = { normX, normY };
+  const canvasClickX = normX * canvas.width;
+  const canvasClickY = normY * canvas.height;
+
+  // Search for nearest detected star in current frame
+  let matchedStar = null;
+  let minPixelDist = 28; // 28 px radius tolerance
+
+  const frame = realFrames[currentEpochIndex];
+  if (frame && frame.detected_stars) {
+    frame.detected_stars.forEach(s => {
+      const sx = s.norm_x * canvas.width;
+      const sy = s.norm_y_canvas * canvas.height;
+      const d = Math.hypot(canvasClickX - sx, canvasClickY - sy);
+      if (d < minPixelDist) {
+        minPixelDist = d;
+        matchedStar = s;
+      }
+    });
+  }
+
+  // Also check Gaia / AllWISE sources
+  let matchedCatalog = null;
+  if (!matchedStar && gaiaSources.length > 0) {
+    gaiaSources.forEach(g => {
+      const gx = (g.x / (canvas.width || 1)) * canvas.width;
+      const gy = (g.y / (canvas.height || 1)) * canvas.height;
+      const d = Math.hypot(canvasClickX - gx, canvasClickY - gy);
+      if (d < minPixelDist) {
+        minPixelDist = d;
+        matchedCatalog = { ra: g.ra, dec: g.dec, designation: g.designation, pm_total: g.pm_total };
+      }
+    });
+  }
+
+  if (matchedStar) {
+    pendingClickData = {
+      normX: matchedStar.norm_x,
+      normY: matchedStar.norm_y_canvas,
+      ra: matchedStar.ra,
+      dec: matchedStar.dec,
+      is_detected: true,
+      catalogId: `Detected Source (Peak ${matchedStar.peak_flux.toFixed(1)} μJy)`
+    };
+  } else if (matchedCatalog) {
+    pendingClickData = {
+      normX,
+      normY,
+      ra: matchedCatalog.ra,
+      dec: matchedCatalog.dec,
+      is_detected: true,
+      catalogId: matchedCatalog.designation,
+      catalog_pm: matchedCatalog.pm_total
+    };
+  } else {
+    // Custom user marker
+    pendingClickData = {
+      normX,
+      normY,
+      ra: currentTarget.ra,
+      dec: currentTarget.dec,
+      is_detected: false,
+      catalogId: `Manual Point (${currentTarget.ra.toFixed(4)}°, ${currentTarget.dec.toFixed(4)}°)`
+    };
+  }
+
   openNicknameModal();
 });
 
 btnOpenNicknameModal.addEventListener('click', () => {
-  pendingClickNorm = activeTrackedObject ? { normX: activeTrackedObject.normX, normY: activeTrackedObject.normY } : { normX: 0.5, normY: 0.5 };
+  pendingClickData = activeTrackedObject ? {
+    normX: activeTrackedObject.normX || 0.5,
+    normY: activeTrackedObject.normY || 0.5,
+    ra: activeTrackedObject.ra || currentTarget.ra,
+    dec: activeTrackedObject.dec || currentTarget.dec,
+    is_detected: activeTrackedObject.is_detected || false,
+    catalogId: activeTrackedObject.catalogId
+  } : {
+    normX: 0.5,
+    normY: 0.5,
+    ra: currentTarget.ra,
+    dec: currentTarget.dec,
+    is_detected: false,
+    catalogId: "Center Target"
+  };
   openNicknameModal();
 });
 
@@ -572,7 +826,7 @@ function openNicknameModal() {
 
 function closeNicknameModal() {
   nicknameModal.classList.remove('active');
-  pendingClickNorm = null;
+  pendingClickData = null;
 }
 
 closeNicknameModalBtn.addEventListener('click', closeNicknameModal);
@@ -588,16 +842,20 @@ btnSaveNickname.addEventListener('click', () => {
 
   const category = inputCategory.value;
   const notes = inputNotes.value.trim();
+  const click = pendingClickData || { normX: 0.5, normY: 0.5, ra: currentTarget.ra, dec: currentTarget.dec, is_detected: false };
 
   const newObj = {
     id: `obj-${Date.now()}`,
     nickname: name,
     fieldId: currentTarget.id,
-    catalogId: `Field (${currentTarget.ra.toFixed(3)}°, ${currentTarget.dec.toFixed(3)}°)`,
+    catalogId: click.catalogId || `Field (${currentTarget.ra.toFixed(4)}°, ${currentTarget.dec.toFixed(4)}°)`,
     category: category,
-    normX: pendingClickNorm ? pendingClickNorm.normX : 0.5,
-    normY: pendingClickNorm ? pendingClickNorm.normY : 0.5,
-    pmTotal: currentTarget.id === 'barnards-star' ? 10393.4 : 8150.0,
+    ra: click.ra,
+    dec: click.dec,
+    normX: click.normX,
+    normY: click.normY,
+    is_detected: click.is_detected,
+    catalog_pm: click.catalog_pm || (currentTarget.proper_motion ? currentTarget.proper_motion.total_pm_mas_yr : null),
     notes: notes,
     addedAt: Date.now()
   };
@@ -605,8 +863,10 @@ btnSaveNickname.addEventListener('click', () => {
   // Add to tracked objects and set as active
   trackedObjects.unshift(newObj);
   saveTrackedObjects();
-  selectTrackedObject(newObj);
   closeNicknameModal();
+
+  // Trigger tracking query with the new object's coordinates
+  selectTrackedObject(newObj);
 });
 
 // Delete Tracked Object
@@ -624,14 +884,38 @@ btnDeleteTracking.addEventListener('click', () => {
   }
 });
 
-// Jump to Spectrum View
+// Jump to Spectrum View with coordinates
 btnViewSpectrum.addEventListener('click', () => {
-  window.location.href = `spectrum.html`;
+  const targetRa = activeTrackedObject && activeTrackedObject.ra ? activeTrackedObject.ra : currentTarget.ra;
+  const targetDec = activeTrackedObject && activeTrackedObject.dec ? activeTrackedObject.dec : currentTarget.dec;
+  window.location.href = `spectrum.html?ra=${targetRa}&dec=${targetDec}&fov=${currentTarget.fov}`;
 });
 
 // Bootstrapping
 document.addEventListener('DOMContentLoaded', () => {
   loadTrackedObjects();
+
+  // Read URL parameters if provided
+  const urlCoords = getUrlCoordinates();
+  if (urlCoords) {
+    const matchedPreset = BENCHMARK_PRESETS.find(p => 
+      Math.abs(p.ra - urlCoords.ra) < 0.005 && Math.abs(p.dec - urlCoords.dec) < 0.005
+    );
+    if (matchedPreset) {
+      currentTarget = matchedPreset;
+      targetSelect.value = currentTarget.id;
+      activeTrackedObject = trackedObjects.find(o => o.fieldId === currentTarget.id) || activeTrackedObject;
+    } else {
+      currentTarget = {
+        id: "custom",
+        name: `RA ${urlCoords.ra.toFixed(4)}, Dec ${urlCoords.dec.toFixed(4)}`,
+        ra: urlCoords.ra,
+        dec: urlCoords.dec,
+        fov: urlCoords.fov || 0.05
+      };
+    }
+  }
+
   renderWatchlistChips();
   loadFieldData(currentTarget);
 });

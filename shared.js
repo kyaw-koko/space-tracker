@@ -6,10 +6,18 @@
  * services and Astropy data processing pipelines.
  */
 
-// API Base URL: Automatically detects if served via localhost or remote backend
-const API_BASE = (window.location.protocol.startsWith('http'))
-  ? `${window.location.protocol}//${window.location.hostname}:8000`
-  : 'http://127.0.0.1:8000';
+// API Base URL: local frontend servers use the backend on port 8000; production can use an explicit override or same-origin proxy.
+const API_BASE = (function() {
+  if (typeof window !== 'undefined' && window.SPHEREX_API_BASE) {
+    return window.SPHEREX_API_BASE;
+  }
+  if (typeof window !== 'undefined' && window.location && window.location.protocol.startsWith('http')) {
+    const port = window.location.port ? `:${window.location.port}` : '';
+    const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+    return `${window.location.protocol}//${window.location.hostname}${isLocalHost ? ':8000' : port}`;
+  }
+  return 'http://127.0.0.1:8000';
+})();
 
 // Official Benchmark Targets with verified SPHEREx & IRSA coverage
 const BENCHMARK_PRESETS = [
@@ -98,7 +106,9 @@ const I18N = {
     btn_pause: "pause animation ❚❚",
     btn_detail: "explore detail",
     btn_diff: "view difference dipole",
-    btn_wipe: "wipe epochs ⇄"
+    btn_wipe: "wipe epochs ⇄",
+    lbl_coords: "Coordinates (RA, Dec):",
+    btn_explore: "Explore"
   },
   mm: {
     nav_about: "အကြောင်းအရာ",
@@ -111,7 +121,9 @@ const I18N = {
     btn_pause: "ခေတ္တရပ်မည် ❚❚",
     btn_detail: "အသေးစိတ်လေ့လာရန်",
     btn_diff: "ဒိုင်ပိုးအလင်းကွာခြားချက်",
-    btn_wipe: "ကာလနှစ်ခုနှိုင်းယှဉ်မည် ⇄"
+    btn_wipe: "ကာလနှစ်ခုနှိုင်းယှဉ်မည် ⇄",
+    lbl_coords: "ကိုဩဒိနိတ် (RA, Dec):",
+    btn_explore: "ရှာဖွေမည်"
   }
 };
 
@@ -162,22 +174,38 @@ function drawWCSCompass(ctx, x, y, size = 30) {
 }
 
 /**
- * Converts real astronomical FITS MJD (Modified Julian Date) to official
- * SPHEREx 6-Month All-Sky Survey Phase and human-readable UTC timestamp.
- * 
- * SPHEREx Orbit & Survey Cadence:
- * SPHEREx operates in a Sun-Synchronous Terminator Polar Orbit, completing
- * one full all-sky spectral survey every 6 months (182.625 days).
- * - Survey 1: Month 0 (Baseline)
- * - Survey 2: Month 6 (Ecliptic Flip / First Repeat)
- * - Survey 3: Month 12 (1-Year Baseline)
- * - Survey 4: Month 18 (Final Sky Survey)
+ * Safe HTML escaping to prevent XSS from user nicknames, notes, or external catalog strings.
  */
-function mjdToSurveyPhaseInfo(mjd, phaseOffset = 0) {
-  const baseMjd = (typeof mjd === 'number' && !isNaN(mjd) && mjd > 50000) ? mjd : 60902.8647;
-  const targetMjd = baseMjd + (phaseOffset * 182.625);
+function escapeHTML(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/**
+ * Converts real astronomical FITS MJD (Modified Julian Date) to human-readable
+ * UTC date, exact timestamp, and official SPHEREx 6-month survey phase.
+ * Never fabricates or synthesizes dates by multiplying frame indexes.
+ */
+function mjdToUtcDate(mjd) {
+  if (typeof mjd !== 'number' || isNaN(mjd) || mjd < 10000) {
+    return {
+      mjd: mjd || 0,
+      shortDate: "Unknown Date",
+      fullDateUTC: "Unknown UTC",
+      surveyPass: 1,
+      phaseName: "Survey 1",
+      compactPhase: "Survey 1",
+      isoString: ""
+    };
+  }
+
   // MJD 40587.0 is Jan 1, 1970 00:00:00 UTC
-  const unixMs = (targetMjd - 40587.0) * 86400000.0;
+  const unixMs = (mjd - 40587.0) * 86400000.0;
   const d = new Date(unixMs);
 
   const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -187,37 +215,98 @@ function mjdToSurveyPhaseInfo(mjd, phaseOffset = 0) {
   const hours = String(d.getUTCHours()).padStart(2, '0');
   const minutes = String(d.getUTCMinutes()).padStart(2, '0');
 
-  const phaseNames = [
-    "Survey 1 (Initial All-Sky Baseline)",
-    "Survey 2 (+6 Months / Ecliptic Flip)",
-    "Survey 3 (+12 Months / 1-Year Baseline)",
-    "Survey 4 (+18 Months / Final Sky Survey)"
-  ];
-
-  const shortPhaseNames = [
-    "Survey 1",
-    "Survey 2 (+6m)",
-    "Survey 3 (+12m)",
-    "Survey 4 (+18m)"
-  ];
-
-  const surveyPass = phaseOffset + 1;
-  const phaseLabel = phaseNames[phaseOffset] || `Survey ${surveyPass} (+${(phaseOffset * 6)}m)`;
-  const shortPhase = shortPhaseNames[phaseOffset] || `Survey ${surveyPass}`;
+  // SPHEREx launch / survey baseline: MJD 60900 (~Aug 2025)
+  // Each survey pass covers the full sky over 182.625 days (~6 months)
+  const daysSinceLaunch = Math.max(0, mjd - 60900.0);
+  const surveyPass = Math.min(4, Math.floor(daysSinceLaunch / 182.625) + 1);
 
   return {
-    mjd: targetMjd,
+    mjd: mjd,
     surveyPass: surveyPass,
-    phaseName: phaseLabel,
-    shortPhase: shortPhase,
+    phaseName: `Survey ${surveyPass}`,
+    shortPhase: `Survey ${surveyPass}`,
     shortDate: `${month} ${day}, ${year}`,
-    fullDateUTC: `${month} ${day}, ${year} ${hours}:${minutes} UTC`,
+    compactPhase: `Survey ${surveyPass}: ${month} ${day}`,
+    fullDateUTC: `${year}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')} ${hours}:${minutes} UTC`,
     isoString: d.toISOString()
   };
 }
 
+/**
+ * Backward compatibility wrapper for older callers.
+ * Directly formats real MJD timestamp.
+ */
+function mjdToSurveyPhaseInfo(mjd, phaseOffset = 0) {
+  return mjdToUtcDate(mjd);
+}
+
+/**
+ * Read celestial coordinates and target from URL query parameters.
+ * E.g., explore.html?ra=269.452075&dec=4.693391&fov=0.05
+ */
+function getUrlCoordinates() {
+  const params = new URLSearchParams(window.location.search);
+  const raStr = params.get('ra');
+  const decStr = params.get('dec');
+  const fovStr = params.get('fov');
+  const targetId = params.get('target');
+  const detector = params.get('detector');
+
+  const ra = raStr !== null ? parseFloat(raStr) : null;
+  const dec = decStr !== null ? parseFloat(decStr) : null;
+  const fov = fovStr !== null ? parseFloat(fovStr) : null;
+
+  const validRa = (ra !== null && !isNaN(ra) && ra >= 0 && ra <= 360);
+  const validDec = (dec !== null && !isNaN(dec) && dec >= -90 && dec <= 90);
+  const validFov = (fov !== null && !isNaN(fov) && fov >= 0.005 && fov <= 0.5);
+
+  return {
+    hasCoords: validRa && validDec,
+    ra: validRa ? ra : null,
+    dec: validDec ? dec : null,
+    fov: validFov ? fov : (fov !== null ? 0.05 : null),
+    targetId: targetId || null,
+    detector: detector || null
+  };
+}
+
+/**
+ * Update the browser URL bar and inter-page navigation links when coordinates change.
+ */
+function setUrlCoordinates(ra, dec, fov, targetId, detector) {
+  try {
+    const url = new URL(window.location.href);
+    if (typeof ra === 'number') url.searchParams.set('ra', ra.toFixed(6));
+    if (typeof dec === 'number') url.searchParams.set('dec', dec.toFixed(6));
+    if (typeof fov === 'number') url.searchParams.set('fov', fov.toFixed(4));
+    if (targetId) url.searchParams.set('target', targetId);
+    else url.searchParams.delete('target');
+    if (detector) url.searchParams.set('detector', detector);
+    window.history.replaceState({}, '', url.toString());
+    updateNavLinks();
+  } catch (e) {
+    // Graceful fallback for non-browser or sandbox environments
+  }
+}
+
+/**
+ * Update all navigation links on the page so coordinates persist when clicking tabs.
+ */
+function updateNavLinks() {
+  const currentParams = window.location.search;
+  if (!currentParams) return;
+  document.querySelectorAll('nav a.nav-link').forEach(link => {
+    const href = link.getAttribute('href');
+    if (href && href.endsWith('.html')) {
+      const baseName = href.split('?')[0];
+      link.setAttribute('href', `${baseName}${currentParams}`);
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   applyLanguage();
+  updateNavLinks();
   const langBtn = document.getElementById('langToggleBtn');
   if (langBtn) {
     langBtn.addEventListener('click', toggleLanguage);
