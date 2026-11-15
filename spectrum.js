@@ -440,7 +440,7 @@ function initThreeJSCube() {
   // HUD Overlay Badge
   const hud = document.createElement('div');
   hud.className = 'cube-hud-badge';
-  hud.innerHTML = '<strong>3D HYPERSPECTRAL CUBE (Three.js)</strong><br><span style="color:#9ab0cf;">Drag: Orbit/Rotate • Scroll: Zoom • Right-click: Pan</span>';
+  hud.innerHTML = '<strong>3D HYPERSPECTRAL CUBE</strong><br><span style="color:#9ab0cf;">Drag: Orbit/Rotate • Scroll: Zoom • Right-click: Pan</span>';
   cubeContainer3D.appendChild(hud);
 
   // OrbitControls
