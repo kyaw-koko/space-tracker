@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPHEREx — 3×3 Star Field Blink & Guide Star Comparison</title>
+  
+  <link rel="stylesheet" href="common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="comparison.css">
+</head>
+<body class="about-theme">
+
+  <!-- Top Navigation Header -->
+  <div class="sx-navbar">
+    <div class="sx-logo">
+      <a href="index.html">
+        <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-fallback" style="display: none"><span>SPHEREx</span></div>
+      </a>
+    </div>
+    <div class="sx-links">
+      <div class="sx-item sx-dropdown">
+        <button
+          type="button"
+          class="sx-link sx-drop-btn"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span data-i18n="nav_learning">Learning</span>
+          <span class="sx-caret">&#9662;</span>
+        </button>
+        <ul class="sx-menu">
+          <li><a href="learn.html" data-i18n="nav_rotation">Rotation</a></li>
+          <li><a href="objects.html" data-i18n="nav_objects">Objects</a></li>
+          <li><a href="measurement.html" data-i18n="nav_measurements">Measurements</a></li>
+          <li><a href="comparison.html" class="active" data-i18n="nav_comparison">Comparison</a></li>
+        </ul>
+      </div>
+      <div class="sx-item">
+        <a href="about.html" class="sx-link" data-i18n="nav_about">About</a>
+      </div>
+      <div class="sx-item sx-dropdown">
+        <button
+          type="button"
+          class="sx-link sx-drop-btn"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span data-i18n="nav_tools">Tools</span>
+          <span class="sx-caret">&#9662;</span>
+        </button>
+        <ul class="sx-menu">
+          <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+          <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+          <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
+        </ul>
+      </div>
+      <div class="sx-item sx-lang">
+        <button type="button" class="sx-link" id="lang-toggle">ENG/MM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dual-Frame Main Container -->
+  <main class="main-container">
+
+    <!-- Left Section: 3x3 Star Field Viewport & Blink Controls -->
+    <section class="left-section">
+      <div class="viewport-frame" id="viewportFrame">
+        <div class="badge-corner" id="coordsBadge">3×3 GUIDE STAR CCD SUBFRAMES</div>
+        <div class="badge-corner-right" id="epochBadge">FRAME: EPOCH A</div>
+
+        <!-- 3x3 Astronomical Star Field Grid -->
+        <div class="starfield-mosaic" id="starfieldMosaic">
+          <!-- 9 subframe tiles generated and managed dynamically by comparison.js -->
+        </div>
+
+        <!-- Real-time Loading / Blinking Status Spinner -->
+        <div class="loader-overlay" id="loaderOverlay">
+          <div class="spinner"></div>
+          <div class="loader-text" id="loaderText">Synthesizing High-Resolution CCD Point Spread Functions...</div>
+        </div>
+      </div>
+
+      <!-- Pill Controls Row (Matches SPHEREx Design System) -->
+      <div class="controls-row">
+        <!-- Play / Pause Blink Animation -->
+        <button id="btnPlayBlink" class="pill-btn active">
+          <span id="blinkIcon">❚❚</span>
+          <span id="blinkBtnText">Blink Animation (ON)</span>
+        </button>
+
+        <!-- Manual Epoch Flip -->
+        <button id="btnToggleEpoch" class="pill-btn">
+          <span>⇄</span>
+          <span id="epochBtnText">Switch to Epoch B</span>
+        </button>
+
+        <!-- Toggle HFD / FWHM Detection Overlay Rings -->
+        <button id="btnToggleCircles" class="pill-btn active">
+          <span style="color:#00e5ff;">◎</span>
+          <span id="circleBtnText">Star Circles: ON</span>
+        </button>
+
+        <!-- Preset Comparison Scenarios -->
+        <div class="pill-select-wrapper">
+          <select id="scenarioSelect" class="pill-select" aria-label="Select Comparison Scenario">
+            <option value="seeing">Scenario: Atmospheric Seeing & Focus Shift</option>
+            <option value="dipole">Scenario: Proper Motion & Transient Dipole</option>
+            <option value="optics">Scenario: Optical Field Curvature & Coma</option>
+            <option value="hfd-fwhm">Scenario: Guide Star HFD vs FWHM Benchmarking</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Blink Rate & Display Sliders -->
+      <div class="slider-controls-card">
+        <div class="timeline-slider-row">
+          <span class="timeline-label">Blink Rate:</span>
+          <input type="range" id="blinkSpeedSlider" min="0.5" max="5.0" step="0.25" value="1.5" class="timeline-range">
+          <span id="blinkSpeedDisplay" class="timeline-speed">1.5 Hz (0.67s / frame)</span>
+        </div>
+
+        <div class="timeline-slider-row">
+          <span class="timeline-label">Background Gain:</span>
+          <input type="range" id="gainSlider" min="0.5" max="2.5" step="0.1" value="1.0" class="timeline-range">
+          <span id="gainDisplay" class="timeline-speed">1.0×</span>
+
+          <span class="timeline-label" style="margin-left: 20px;">Noise Filter:</span>
+          <input type="range" id="noiseSlider" min="0" max="100" step="5" value="40" class="timeline-range">
+          <span id="noiseDisplay" class="timeline-speed">40%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Section: Guide Star Telemetry & PSF Analysis Card -->
+    <aside class="info-card-frame" id="infoCard">
+      <h1 class="info-title" id="tileTitle">
+        <strong>Tile [2, 2]</strong> (Optical Axis Center)
+      </h1>
+
+      <div class="info-body">
+        <p id="tileDescription">
+          Central bore-sight sensor subframe. High optical sharpness with minimal aberration. Guide star profiles are circular with optimal Half Flux Diameter (HFD).
+        </p>
+
+        <!-- Guide Star Analysis Metrics Box -->
+        <div class="irsa-source-box">
+          <div class="irsa-source-title">ASTRONOMICAL FOCUS & GUIDE METRICS</div>
+          <div class="irsa-source-row">
+            <span>Primary Guide Metric:</span> <code>HFD (Half Flux Diameter)</code>
+          </div>
+          <div class="irsa-source-row">
+            <span>Profile Model:</span> <code>Moffat (β = 4.76) / 2D Gaussian</code>
+          </div>
+          <div class="irsa-source-row">
+            <span>Sensor Pixel Scale:</span> <code>1.20 arcsec/pixel</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Telemetry Key-Value Grid -->
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <span class="telemetry-label">Average HFD</span>
+          <span class="telemetry-value" id="valHFD">2.35 px</span>
+        </div>
+
+        <div class="telemetry-item">
+          <span class="telemetry-label">Average FWHM</span>
+          <span class="telemetry-value" id="valFWHM">2.82 px (3.38")</span>
+        </div>
+
+        <div class="telemetry-item">
+          <span class="telemetry-label">Star Count</span>
+          <span class="telemetry-value" id="valStarCount">14 detected</span>
+        </div>
+
+        <div class="telemetry-item">
+          <span class="telemetry-label">Peak Guide SNR</span>
+          <span class="telemetry-value" id="valSNR">48.2 dB</span>
+        </div>
+
+        <div class="telemetry-item">
+          <span class="telemetry-label">Seeing Quality</span>
+          <span class="telemetry-value" id="valSeeing" style="color: #00e5ff;">1.6" (Optimal)</span>
+        </div>
+
+        <div class="telemetry-item">
+          <span class="telemetry-label">Focus State</span>
+          <span class="telemetry-value" id="valFocusState" style="color: #69f0ae;">Critical Focus</span>
+        </div>
+      </div>
+
+      <!-- PSF Radial Intensity Profile Plot -->
+      <div class="psf-plot-container">
+        <div class="psf-plot-header">
+          <span class="psf-plot-title">Radial Point Spread Function (PSF) Profile</span>
+          <span class="psf-legend">
+            <span class="legend-color-fwhm"></span> FWHM
+            <span class="legend-color-hfd"></span> HFD
+          </span>
+        </div>
+        <canvas id="psfCanvas" width="300" height="150" class="psf-canvas"></canvas>
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-text">
+      &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
+    </div>
+  </div>
+
+  <script src="nav.js"></script>
+  <script src="shared.js"></script>
+  <script src="comparison.js"></script>
+</body>
+</html>

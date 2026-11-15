@@ -4,12 +4,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const startBtn = document.getElementById("start-btn");
   const footerText = document.getElementById("footer-text");
 
-  // Loop background video infinitely at the 5-second mark
+  // Ensure video is muted for browser autoplay policy, start play, and loop at 5s mark
   if (bgVideo) {
+    bgVideo.muted = true;
+    bgVideo.play().catch((err) => {
+      console.warn("Autoplay was delayed or blocked by browser policy:", err);
+    });
+
     bgVideo.addEventListener("timeupdate", () => {
       if (bgVideo.currentTime >= 5) {
         bgVideo.currentTime = 0;
-        bgVideo.play();
+        bgVideo.play().catch(() => {});
       }
     });
   }

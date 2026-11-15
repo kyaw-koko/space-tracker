@@ -695,7 +695,8 @@ class SafeStaticFiles(StaticFiles):
     """Static file server that restricts served files to public frontend web assets."""
     ALLOWED_EXTENSIONS = {
         ".html", ".htm", ".js", ".css", ".png", ".jpg", ".jpeg",
-        ".svg", ".ico", ".json", ".woff", ".woff2", ".ttf", ".map"
+        ".svg", ".ico", ".json", ".woff", ".woff2", ".ttf", ".map",
+        ".mp4", ".webm", ".ogv"
     }
     FORBIDDEN_NAMES = {
         "main.py", "irsa_client.py", "image_processor.py", "catalog_overlay.py",
@@ -872,6 +873,12 @@ def serve_style_css():
 @app.get("/script.js", response_class=FileResponse)
 def serve_script_js():
     return FileResponse("script.js")
+
+
+@app.get("/sphere x.mp4", response_class=FileResponse)
+@app.get("/sphere%20x.mp4", response_class=FileResponse)
+def serve_sphere_video():
+    return FileResponse("sphere x.mp4", media_type="video/mp4")
 
 
 # Catch-all safe file server for frontend assets at root path
