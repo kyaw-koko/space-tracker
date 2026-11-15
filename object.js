@@ -76,7 +76,7 @@
       var rm = new THREE.Mesh(rg, M(0xff4d8d, 0.5)); g.add(rm); rings.push(rm);
     }
     g.rotation.x = 0.35;
-    var fixed = new THREE.Group(), lab = sprite("\u2248 250 K  (\u221223 \u00b0C)", "#ff9fc4", 0.6); lab.position.y = -2.65; fixed.add(lab);
+    var fixed = new THREE.Group(), lab = sprite("\u2248 250 K  (\u221223 \u00b0C)", "#ff9fc4", 0.6); lab.position.y = -2.4; fixed.add(lab);
     return { obj: g, fixed: fixed, cam: [0, 0.2, 7.4], spin: true, update: function (t) {
       body.rotation.y = t * 0.35; ice.rotation.y = t * 0.5;
       rings.forEach(function (r, k) { var p = (t * 0.4 + k / 3) % 1; r.scale.setScalar(1.3 + p * 1.5); r.material.opacity = 0.5 * (1 - p); });
@@ -102,7 +102,7 @@
     var fixed = new THREE.Group();
     fixed.add(line([V(-1.6, 2.75, 0), V(1.3, 2.75, 0)], 0xffd9a8, 0.9));
     var cone = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.26, 12), M(0xffd9a8)); cone.rotation.z = -Math.PI / 2; cone.position.set(1.4, 2.75, 0); fixed.add(cone);
-    var l1 = sprite("proper motion: 10.3\u2033 / yr", "#ffd9a8", 0.55); l1.position.set(-0.1, 3.1, 0); fixed.add(l1);
+    var l1 = sprite("proper motion: 10.3\u2033 / yr", "#ffd9a8", 0.55); l1.position.set(-0.1, 2.5, 0); fixed.add(l1);
     return { obj: g, fixed: fixed, cam: [0, 0.4, 8.6], spin: false, update: function (t) {
       planets.forEach(function (p) { var a = p.ph + t * 2.6 / p.P * 2; p.m.position.set(p.r * Math.cos(a), 0, p.r * Math.sin(a)); });
       var pos = stars.geometry.attributes.position;
