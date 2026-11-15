@@ -288,7 +288,7 @@ def api_root(request: Request):
     """Root endpoint: serves web application for browser visitors or API capabilities for REST clients."""
     accept = request.headers.get("accept", "")
     if "text/html" in accept:
-        return FileResponse("explore.html", media_type="text/html")
+        return FileResponse("index.html", media_type="text/html")
 
     return {
         "engine": "Planet X and SPHEREx Backend Engine",
