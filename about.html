@@ -8,25 +8,31 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="about.css">
+  <link rel="stylesheet" href="nav.css">
 </head>
 <body>
 
-  <!-- Fixed Top Navigation Bar (Same as Home Page) -->
-  <div class="navbar">
-    <div class="nav-logo">
+  <!-- Navigation Bar (shared, same as home page) -->
+  <div class="sx-navbar sx-fixed">
+    <div class="sx-logo">
       <a href="index.html">
         <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="logo-fallback" style="display: none;">
-          <span>SPHEREx</span>
-        </div>
+        <div class="logo-fallback" style="display: none;"><span>SPHEREx</span></div>
       </a>
     </div>
-
-    <div class="nav-links">
-      <div class="nav-item"><a href="about.html" class="active" id="nav-about">About</a></div>
-      <div class="nav-item"><a href="#" id="nav-explore">Explore</a></div>
-      <div class="nav-item"><a href="#" id="nav-track">Track</a></div>
-      <div class="nav-item lang-switch"><a href="#" id="lang-toggle">ENG/MM</a></div>
+    <div class="sx-links">
+      <div class="sx-item"><a href="#" class="sx-link" id="nav-timeline" data-i18n="nav_timeline">Timeline</a></div>
+      <div class="sx-item"><a href="about.html" class="sx-link active" data-i18n="nav_about">About</a></div>
+      <div class="sx-item sx-dropdown">
+        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav_menu">Tools</span> <span class="sx-caret">&#9662;</span></button>
+        <ul class="sx-menu">
+          <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+          <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+          <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
+        </ul>
+      </div>
+      <div class="sx-item sx-lang"><button type="button" class="sx-link" id="lang-toggle">ENG/MM</button></div>
     </div>
   </div>
 
@@ -100,11 +106,12 @@
 
   <!-- Footer -->
   <div class="footer">
-    <div class="footer-text">
+    <div class="footer-text" data-en="&copy; 2026 SPHEREx Mission Explorer. All rights reserved." data-mm="© ၂၀၂၆ SPHEREx မစ်ရှင် စူးစမ်းလေ့လာရေး။ မူပိုင်ခွင့်အားလုံး ရယူထားသည်။">
       &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
     </div>
   </div>
 
+  <script src="nav.js"></script>
   <script src="about.js"></script>
 </body>
 </html>

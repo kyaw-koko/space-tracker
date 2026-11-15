@@ -1,0 +1,134 @@
+﻿/* ==========================================================================
+   Shared Navigation Bar (matches Home Page theme)
+   ========================================================================== */
+.sx-navbar {
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px 60px;
+  font-family: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+}
+.sx-navbar.sx-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: linear-gradient(to bottom, rgba(11, 12, 16, 0.95), rgba(11, 12, 16, 0));
+}
+.sx-navbar .sx-logo img { height: 75px; width: auto; display: block; }
+.sx-navbar .logo-fallback {
+  width: 70px; height: 70px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  align-items: center; justify-content: center;
+  font-family: sans-serif; font-size: 11px; font-weight: bold;
+  letter-spacing: 1px; color: #fff;
+}
+.sx-links { display: flex; align-items: center; gap: 38px; }
+.sx-item { position: relative; }
+
+.sx-navbar .sx-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  color: #f0f2f5;
+  font-family: inherit;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+  transition: color 0.3s ease;
+}
+.sx-navbar .sx-link:hover,
+.sx-navbar .sx-link.active,
+.sx-dropdown.open > .sx-drop-btn { color: #8fa8ff; }
+.sx-caret { display: inline-block; font-size: 0.8em; transition: transform 0.25s ease; }
+.sx-dropdown.open .sx-caret { transform: rotate(180deg); }
+.sx-lang { margin-left: 25px; }
+
+.sx-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  min-width: 170px;
+  margin-top: 14px;
+  padding: 8px 0;
+  list-style: none;
+  background: rgba(11, 14, 22, 0.92);
+  border: 1px solid rgba(108, 122, 156, 0.5);
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+/* invisible bridge so hover isn't lost between button and menu */
+.sx-menu::before { content: ''; position: absolute; top: -16px; left: 0; width: 100%; height: 16px; }
+.sx-dropdown.open .sx-menu,
+.sx-dropdown:hover .sx-menu {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.sx-menu a {
+  display: block;
+  padding: 10px 22px;
+  text-decoration: none;
+  color: #f0f2f5;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+.sx-menu a:hover,
+.sx-menu a.active { color: #8fa8ff; background: rgba(108, 122, 156, 0.18); }
+
+@media (max-width: 768px) {
+  .sx-navbar { padding: 20px 25px; flex-direction: column; gap: 15px; }
+  .sx-links { gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .sx-lang { margin-left: 0; }
+  .sx-menu { right: auto; left: 50%; margin-left: -85px; }
+}
+
+/* ==========================================================================
+   About-page background theme + shared footer
+   ========================================================================== */
+body.about-theme {
+  background-color: #0b0c10;
+  background-image: none;
+}
+.footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 30px 20px;
+  font-family: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- About-style typography (Lora) for Explore / Track / Catalog / Spectrum ---- */
+body.about-theme, body.about-theme.lang-mm {
+  --font-serif: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+  --font-title: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+  font-family: 'Lora', 'Padauk', Georgia, 'Times New Roman', serif;
+  font-size: 16px;
+}
+body.about-theme button, body.about-theme input, body.about-theme select, body.about-theme textarea, body.about-theme table {
+  font-family: inherit;
+}
+body.about-theme .brand-title { font-size: 20px; }
+body.about-theme .brand-sub { font-size: 13px; }
+body.about-theme .nav-link { font-size: 19px; }
+body.about-theme .lang-toggle-btn { font-size: 16px; }
+body.about-theme .badge-corner { font-size: 14px; }
+body.about-theme .badge-corner-right { font-size: 14px; }
+body.about-theme .pill-btn { font-size: 19px; }
+body.about-theme .pill-select { font-size: 17px; }
+body.about-theme .pill-select-wrapper::after { font-size: 13px; }
+body.about-theme .info-title { font-size: 24px; }
+body.about-theme .info-body { font-size: 17px; }
+body.about-theme .telemetry-label { font-size: 14px; }
+body.about-theme .telemetry-value { font-size: 16px; }
+body.about-theme .loader-text { font-size: 15px; }

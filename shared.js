@@ -96,6 +96,8 @@ const BENCHMARK_PRESETS = [
 // Bilingual Translations (English & Myanmar)
 const I18N = {
   en: {
+    nav_timeline: "Timeline",
+    nav_menu: "Tools",
     nav_about: "About",
     nav_explore: "Explore",
     nav_track: "Track",
@@ -111,6 +113,8 @@ const I18N = {
     btn_explore: "Explore"
   },
   mm: {
+    nav_timeline: "အချိန်ဇယား",
+    nav_menu: "ကိရိယာများ",
     nav_about: "အကြောင်းအရာ",
     nav_explore: "လေ့လာမည်",
     nav_track: "ခြေရာခံရန်",
@@ -146,6 +150,7 @@ function applyLanguage() {
   if (toggleBtn) {
     toggleBtn.textContent = currentLang === 'en' ? 'ENG/MM' : 'MM/ENG';
   }
+  if (window.SXTranslate) window.SXTranslate.apply(currentLang);
 }
 
 // Draw celestial crosshair and compass on Canvas
@@ -154,7 +159,7 @@ function drawWCSCompass(ctx, x, y, size = 30) {
   ctx.strokeStyle = "rgba(0, 229, 255, 0.75)";
   ctx.fillStyle = "rgba(0, 229, 255, 0.9)";
   ctx.lineWidth = 1.5;
-  ctx.font = "11px 'Inter', sans-serif";
+  ctx.font = "14px 'Lora', Georgia, serif";
 
   // North (Up) Arrow
   ctx.beginPath();
@@ -295,7 +300,7 @@ function setUrlCoordinates(ra, dec, fov, targetId, detector) {
 function updateNavLinks() {
   const currentParams = window.location.search;
   if (!currentParams) return;
-  document.querySelectorAll('nav a.nav-link').forEach(link => {
+  document.querySelectorAll('.sx-navbar .sx-menu a').forEach(link => {
     const href = link.getAttribute('href');
     if (href && href.endsWith('.html')) {
       const baseName = href.split('?')[0];

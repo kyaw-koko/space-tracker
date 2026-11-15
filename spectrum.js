@@ -186,7 +186,7 @@ function render() {
     ctx.lineTo(x2, margin.top + plotH);
     ctx.stroke();
 
-    ctx.font = "11px 'Inter', sans-serif";
+    ctx.font = "14px 'Lora', Georgia, serif";
     ctx.fillStyle = b.border;
     ctx.fillText(b.name, x1 + (x2 - x1) / 2 - 8, margin.top + 16);
   });
@@ -200,7 +200,7 @@ function render() {
   }
 
   if (validPoints.length === 0) {
-    ctx.font = "14px 'Inter', sans-serif";
+    ctx.font = "16px 'Lora', Georgia, serif";
     ctx.fillStyle = "#9ab0cf";
     ctx.fillText("No active exposures in this sky region have been observed in these bands yet.", margin.left + 40, h / 2);
     drawAxes(margin, plotW, plotH, 1, 100);
@@ -235,7 +235,7 @@ function render() {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      ctx.font = "10px 'Inter', sans-serif";
+      ctx.font = "13px 'Lora', Georgia, serif";
       ctx.fillStyle = "rgba(255, 128, 171, 0.85)";
       ctx.fillText(m.name, mx - 18, margin.top + 34);
     });
@@ -289,7 +289,7 @@ function drawAxes(margin, plotW, plotH, minFlux, maxFlux) {
   ctx.strokeRect(margin.left, margin.top, plotW, plotH);
 
   // X-Ticks
-  ctx.font = "11px 'Inter', sans-serif";
+  ctx.font = "14px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   for (let wStep = 1.0; wStep <= 5.0; wStep += 0.5) {
     const tx = margin.left + ((wStep - 0.75) / (5.00 - 0.75)) * plotW;
@@ -304,13 +304,13 @@ function drawAxes(margin, plotW, plotH, minFlux, maxFlux) {
   ctx.save();
   ctx.translate(18, margin.top + plotH / 2);
   ctx.rotate(-Math.PI / 2);
-  ctx.font = "11px 'Inter', sans-serif";
+  ctx.font = "14px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(useLogScale ? "Flux Density (μJy) [Log Scale]" : "Flux Density (μJy) [Linear]", -60, 0);
   ctx.restore();
 
   // Bottom Title
-  ctx.font = "12px 'Inter', sans-serif";
+  ctx.font = "14px 'Lora', Georgia, serif";
   ctx.fillStyle = "#eef3fc";
   ctx.fillText("Wavelength (μm) [SPHEREx 0.75 - 5.00 μm All-Sky Spectrophotometry]", margin.left + plotW / 2 - 160, h - 16);
 }
@@ -318,10 +318,10 @@ function drawAxes(margin, plotW, plotH, minFlux, maxFlux) {
 function renderNoData(target, msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff9100";
   ctx.fillText("No FITS Cutouts in IRSA for Photometry Extraction", 60, canvas.height / 2 - 10);
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 15);
 }
@@ -329,10 +329,10 @@ function renderNoData(target, msg) {
 function renderError(msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff5252";
   ctx.fillText("Pipeline Error: Failed to Extract Photometry", 60, canvas.height / 2 - 10);
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 15);
 }

@@ -5,37 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPHEREx — Dipole Heatmap & Epoch Difference Inspector</title>
   <link rel="stylesheet" href="common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="diff.css">
 </head>
 <body>
 
   <!-- Top Navigation Header -->
-  <header class="site-header">
-    <a href="explore.html" class="brand">
-      <svg class="brand-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" stroke="#6f8cb8" stroke-width="1.8" stroke-dasharray="6 4"/>
-        <ellipse cx="50" cy="50" rx="36" ry="18" stroke="#a0b8db" stroke-width="2" transform="rotate(-25 50 50)"/>
-        <circle cx="50" cy="50" r="14" fill="#142036" stroke="#00e5ff" stroke-width="2.5"/>
-        <path d="M42 50 L58 50 M50 42 L50 58" stroke="#00e5ff" stroke-width="1.8"/>
-        <circle cx="68" cy="38" r="3" fill="#ffffff"/>
-      </svg>
-      <div class="brand-text">
-        <span class="brand-title">SPHEREx</span>
-        <span class="brand-sub">Dipole Track Inspector</span>
+  <!-- Navigation Bar (shared, same as home page) -->
+  <div class="sx-navbar">
+    <div class="sx-logo">
+      <a href="index.html">
+        <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-fallback" style="display: none;"><span>SPHEREx</span></div>
+      </a>
+    </div>
+    <div class="sx-links">
+      <div class="sx-item"><a href="#" class="sx-link" id="nav-timeline" data-i18n="nav_timeline">Timeline</a></div>
+      <div class="sx-item"><a href="about.html" class="sx-link" data-i18n="nav_about">About</a></div>
+      <div class="sx-item sx-dropdown">
+        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav_menu">Tools</span> <span class="sx-caret">&#9662;</span></button>
+        <ul class="sx-menu">
+          <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+          <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+          <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
+        </ul>
       </div>
-    </a>
-
-    <nav>
-      <ul class="nav-links">
-        <li><a href="presets.html" class="nav-link" data-i18n="nav_about">About</a></li>
-        <li><a href="explore.html" class="nav-link" data-i18n="nav_explore">Explore</a></li>
-        <li><a href="track.html" class="nav-link active" data-i18n="nav_track">Track</a></li>
-        <li><a href="catalog.html" class="nav-link" data-i18n="nav_catalog">Catalog</a></li>
-        <li><a href="spectrum.html" class="nav-link" data-i18n="nav_spectrum">Spectrum</a></li>
-        <li><button id="langToggleBtn" class="lang-toggle-btn">ENG/MM</button></li>
-      </ul>
-    </nav>
-  </header>
+      <div class="sx-item sx-lang"><button type="button" class="sx-link" id="langToggleBtn">ENG/MM</button></div>
+    </div>
+  </div>
 
   <!-- Dual-Frame Main Container -->
   <main class="main-container">
@@ -153,7 +152,9 @@
 
   </main>
 
+  <script src="nav.js"></script>
   <script src="shared.js"></script>
+  <script src="translate.js"></script>
   <script src="diff.js"></script>
 </body>
 </html>

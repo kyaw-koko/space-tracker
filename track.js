@@ -573,7 +573,7 @@ function renderObjectCalloutAndTrajectory(obj, w, h, frameIdx) {
       ctx.fill();
 
       // Real Observation Date Label
-      ctx.font = isCurrent ? "bold 11px 'Inter', sans-serif" : "10px 'Inter', sans-serif";
+      ctx.font = isCurrent ? "bold 14px 'Lora', Georgia, serif" : "13px 'Lora', Georgia, serif";
       ctx.fillStyle = isCurrent ? "#ffffff" : "rgba(220, 230, 245, 0.75)";
       ctx.fillText(`${pt.pass}: ${pt.date}`, pt.x + 8, pt.y + 4);
     });
@@ -633,12 +633,12 @@ function renderObjectCalloutAndTrajectory(obj, w, h, frameIdx) {
   ctx.stroke();
 
   // Nickname Text
-  ctx.font = "15px 'Playfair Display', Georgia, serif";
+  ctx.font = "16px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ffffff";
   ctx.fillText(obj.nickname, pointerEndX - 10, pointerY - 8);
 
   if (!isCurrentDetected && currentObs) {
-    ctx.font = "10px 'Inter', sans-serif";
+    ctx.font = "13px 'Lora', Georgia, serif";
     ctx.fillStyle = "#ff8080";
     ctx.fillText(`(Below Limit in ${currentObs.detector})`, pointerEndX - 10, pointerY + 12);
   }

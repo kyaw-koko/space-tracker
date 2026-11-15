@@ -324,7 +324,7 @@ async function extractSpectrumForTarget(target) {
   // Clear drawer canvas & draw loading notice
   drawerCtx.fillStyle = "#07090e";
   drawerCtx.fillRect(0, 0, drawerCanvas.width, drawerCanvas.height);
-  drawerCtx.font = "14px 'Inter', sans-serif";
+  drawerCtx.font = "16px 'Lora', Georgia, serif";
   drawerCtx.fillStyle = "#00e5ff";
   drawerCtx.fillText("Extracting aperture photometry across SPHEREx MEF cutouts from IRSA...", 30, drawerCanvas.height / 2);
 
@@ -362,7 +362,7 @@ function renderSpectrumCurve(spectrum) {
   const valid = spectrum.filter(p => p.flux_uJy !== null && p.flux_uJy > 0);
   if (valid.length === 0) {
     drawerCtx.fillStyle = "#ff9100";
-    drawerCtx.font = "13px 'Inter', sans-serif";
+    drawerCtx.font = "15px 'Lora', Georgia, serif";
     drawerCtx.fillText("No non-zero flux measurements available in this FOV.", margin.left + 20, h / 2);
     return;
   }
@@ -423,7 +423,7 @@ function renderSpectrumCurve(spectrum) {
   drawerCtx.strokeRect(margin.left, margin.top, pw, ph);
 
   // Axis Labels
-  drawerCtx.font = "11px 'Inter', sans-serif";
+  drawerCtx.font = "14px 'Lora', Georgia, serif";
   drawerCtx.fillStyle = "#9ab0cf";
   drawerCtx.fillText("Wavelength (0.75 - 5.00 μm)", margin.left + pw / 2 - 60, h - 12);
   drawerCtx.fillText("Flux F_ν (Log μJy)", 8, margin.top + 14);
@@ -485,11 +485,11 @@ function renderNoDataMessage(target, msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff9100";
   ctx.fillText("No SPHEREx Cutouts in IRSA Archive for this Sky Region", 60, canvas.height / 2 - 20);
 
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 10);
   ctx.fillText("Try selecting Barnard's Star or WISE 0855 which have verified coverage in the current release.", 60, canvas.height / 2 + 35);
@@ -499,11 +499,11 @@ function renderErrorMessage(msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff5252";
   ctx.fillText("Error Connecting to Backend / IRSA Pipeline", 60, canvas.height / 2 - 20);
 
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 10);
 }

@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const bgVideo = document.getElementById("bg-video");
   const langToggle = document.getElementById("lang-toggle");
   const startBtn = document.getElementById("start-btn");
+  const footerText = document.getElementById("footer-text");
 
   // Loop background video infinitely at the 5-second mark
   if (bgVideo) {
@@ -14,9 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Elements to translate
-  const navAbout = document.getElementById("nav-about");
-  const navExplore = document.getElementById("nav-explore");
-  const navTrack = document.getElementById("nav-track");
   const heroSubtitle = document.getElementById("hero-subtitle");
 
   let currentLang = "ENG";
@@ -27,18 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (currentLang === "ENG") {
       currentLang = "MM";
-      navAbout.textContent = "အကြောင်းအရာ";
-      navExplore.textContent = "စူးစမ်းလေ့လာရန်";
-      navTrack.textContent = "ခြေရာခံရန်";
       heroSubtitle.textContent = "စကြဝဠာသမိုင်းကြောင်းနှင့် ရေခဲများကို စူးစမ်းလေ့လာမည့် အာကာသတယ်လီစကုပ်";
       startBtn.textContent = "စတင်လေ့လာမည်";
+      footerText.textContent = "© ၂၀၂၆ SPHEREx မစ်ရှင် စူးစမ်းလေ့လာရေး။ မူပိုင်ခွင့်အားလုံး ရယူထားသည်။";
     } else {
       currentLang = "ENG";
-      navAbout.textContent = "About";
-      navExplore.textContent = "Explore";
-      navTrack.textContent = "Track";
       heroSubtitle.textContent = "Spectro-Photometer for the History of the Universe, Epoch of Reionization and Ices Explorer";
       startBtn.textContent = "Start Explore";
+      footerText.textContent = "\u00a9 2026 SPHEREx Mission Explorer. All rights reserved.";
     }
   });
 

@@ -284,10 +284,10 @@ canvas.addEventListener('mousemove', (e) => {
 function renderNoData(target, msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff9100";
   ctx.fillText("No FITS Cutouts in IRSA Archive for this Sky Region", 60, canvas.height / 2 - 10);
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 15);
 }
@@ -295,10 +295,10 @@ function renderNoData(target, msg) {
 function renderError(msg) {
   ctx.fillStyle = "#07090e";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.font = "16px 'Playfair Display', Georgia, serif";
+  ctx.font = "17px 'Lora', Georgia, serif";
   ctx.fillStyle = "#ff5252";
   ctx.fillText("Pipeline Error: Failed to Cross-Match Catalogs", 60, canvas.height / 2 - 10);
-  ctx.font = "13px 'Inter', sans-serif";
+  ctx.font = "15px 'Lora', Georgia, serif";
   ctx.fillStyle = "#9ab0cf";
   ctx.fillText(msg, 60, canvas.height / 2 + 15);
 }

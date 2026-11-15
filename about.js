@@ -31,9 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 3. ENG / MM Language Toggle
   const langToggle = document.getElementById("lang-toggle");
-  const navAbout = document.getElementById("nav-about");
-  const navExplore = document.getElementById("nav-explore");
-  const navTrack = document.getElementById("nav-track");
   const scrollLabel = document.getElementById("scroll-label");
   const translatableElements = document.querySelectorAll("[data-en]");
 
@@ -44,17 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
     currentLang = currentLang === "ENG" ? "MM" : "ENG";
 
     if (currentLang === "MM") {
-      navAbout.textContent = "အကြောင်းအရာ";
-      navExplore.textContent = "စူးစမ်းလေ့လာရန်";
-      navTrack.textContent = "ခြေရာခံရန်";
       scrollLabel.textContent = "အောက်သို့ဆွဲပါ";
       translatableElements.forEach((el) => {
         el.textContent = el.getAttribute("data-mm");
       });
     } else {
-      navAbout.textContent = "About";
-      navExplore.textContent = "Explore";
-      navTrack.textContent = "Track";
       scrollLabel.textContent = "Scroll";
       translatableElements.forEach((el) => {
         el.textContent = el.getAttribute("data-en");

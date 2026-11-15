@@ -57,7 +57,7 @@
 
 .watchlist-label {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-dim);
@@ -75,7 +75,7 @@
   border-radius: var(--radius-pill);
   padding: 6px 14px;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-main);
   cursor: pointer;
   display: inline-flex;
@@ -114,7 +114,7 @@
 
 .nickname-tag {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 13px;
   letter-spacing: 1.5px;
   color: var(--cyan-accent);
   background: rgba(0, 229, 255, 0.12);
@@ -126,7 +126,7 @@
 
 .dossier-sub {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-dim);
   margin-top: 4px;
 }
@@ -155,7 +155,7 @@
 }
 
 .diag-icon {
-  font-size: 18px;
+  font-size: 19px;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -168,7 +168,7 @@
 
 .diag-title {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--text-dim);
@@ -176,14 +176,14 @@
 
 .diag-status {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #ffffff;
 }
 
 .diag-desc {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
   line-height: 1.45;
 }
@@ -199,7 +199,7 @@
 
 .obs-log-title {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-dim);
@@ -210,14 +210,14 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .obs-log-table th {
   text-align: left;
   padding: 6px 8px;
   color: var(--text-dim);
-  font-size: 10px;
+  font-size: 13px;
   text-transform: uppercase;
   border-bottom: 1px solid rgba(111, 140, 184, 0.2);
 }
@@ -270,7 +270,7 @@
 }
 
 .nickname-input-group label {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -283,7 +283,7 @@
   padding: 10px 14px;
   border-radius: 8px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
 }
 

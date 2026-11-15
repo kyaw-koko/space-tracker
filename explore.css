@@ -69,7 +69,7 @@
 }
 
 .coord-input-icon {
-  font-size: 18px;
+  font-size: 19px;
   color: var(--cyan-accent);
   display: flex;
   align-items: center;
@@ -77,7 +77,7 @@
 
 .coord-input-label {
   font-family: var(--font-sans);
-  font-size: 12px;
+  font-size: 14px;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -92,7 +92,7 @@
   color: #ffffff;
   padding: 8px 16px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
   transition: all 0.2s ease;
 }
@@ -108,7 +108,7 @@
   border: 1px solid var(--border-glow);
   color: var(--text-main);
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   padding: 8px 20px;
   border-radius: var(--radius-pill);
@@ -142,14 +142,14 @@
   border-radius: var(--radius-pill);
   width: 100%;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
 }
 
 .timeline-label {
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   white-space: nowrap;
 }
@@ -162,7 +162,7 @@
 }
 
 .timeline-speed {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--cyan-accent);
   white-space: nowrap;
 }
@@ -175,14 +175,14 @@
   padding: 14px 18px;
   margin-top: 10px;
   font-family: var(--font-sans);
-  font-size: 13px;
+  font-size: 15px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 .irsa-source-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: var(--cyan-accent);
   margin-bottom: 2px;
@@ -201,7 +201,7 @@
   background: rgba(0, 0, 0, 0.4);
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: 14px;
 }
 
 /* Spectrum Expandable Drawer */
@@ -230,7 +230,7 @@
 
 .spectrum-drawer-title {
   font-family: var(--font-serif);
-  font-size: 17px;
+  font-size: 18px;
   color: #ffffff;
 }
 
@@ -279,7 +279,7 @@
 }
 
 .custom-input-grid label {
-  font-size: 13px;
+  font-size: 15px;
   color: var(--text-muted);
   display: flex;
   flex-direction: column;
@@ -293,7 +293,7 @@
   padding: 8px 12px;
   border-radius: 6px;
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 16px;
   outline: none;
 }
 
@@ -303,7 +303,7 @@
 
 .loader-subtext {
   font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 14px;
   color: var(--text-dim);
   text-align: center;
   max-width: 320px;

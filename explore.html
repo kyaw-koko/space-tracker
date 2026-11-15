@@ -1,63 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SPHEREx — Real-World IRSA Astronomical Sky Explorer</title>
-  
+
   <!-- Shared Design Tokens & Component Styles -->
   <link rel="stylesheet" href="common.css">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="explore.css">
 </head>
-<body>
+
+<body class="about-theme">
 
   <!-- ====================================================================
        1. TOP HEADER & NAVIGATION BAR (Matching Figma Design)
        ==================================================================== -->
-  <header class="site-header">
-    <a href="explore.html" class="brand">
-      <!-- SPHEREx Satellite / Space Telescope SVG Emblem -->
-      <svg class="brand-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="50" cy="50" r="45" stroke="#6f8cb8" stroke-width="1.8" stroke-dasharray="6 4"/>
-        <ellipse cx="50" cy="50" rx="36" ry="18" stroke="#a0b8db" stroke-width="2" transform="rotate(-25 50 50)"/>
-        <circle cx="50" cy="50" r="14" fill="#142036" stroke="#00e5ff" stroke-width="2.5"/>
-        <path d="M42 50 L58 50 M50 42 L50 58" stroke="#00e5ff" stroke-width="1.8"/>
-        <circle cx="68" cy="38" r="3" fill="#ffffff"/>
-      </svg>
-      <div class="brand-text">
-        <span class="brand-title">SPHEREx</span>
-        <span class="brand-sub">Real Sky Pipeline (IRSA & Astropy)</span>
+  <!-- Navigation Bar (shared, same as home page) -->
+  <div class="sx-navbar">
+    <div class="sx-logo">
+      <a href="index.html">
+        <img src="logo.png" alt="SPHEREx Logo"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div class="logo-fallback" style="display: none;"><span>SPHEREx</span></div>
+      </a>
+    </div>
+    <div class="sx-links">
+      <div class="sx-item"><a href="#" class="sx-link" id="nav-timeline" data-i18n="nav_timeline">Timeline</a></div>
+      <div class="sx-item"><a href="about.html" class="sx-link" data-i18n="nav_about">About</a></div>
+      <div class="sx-item sx-dropdown">
+        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span
+            data-i18n="nav_menu">Tools</span> <span class="sx-caret">&#9662;</span></button>
+        <ul class="sx-menu">
+          <li><a href="explore.html" class="active" data-i18n="nav_explore">Explore</a></li>
+          <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+          <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
+        </ul>
       </div>
-    </a>
-
-    <!-- Navigation links with active route indicator -->
-    <nav>
-      <ul class="nav-links">
-        <li><a href="presets.html" class="nav-link" data-i18n="nav_about">About</a></li>
-        <li><a href="explore.html" class="nav-link active" data-i18n="nav_explore">Explore</a></li>
-        <li><a href="track.html" class="nav-link" data-i18n="nav_track">Track</a></li>
-        <li><a href="catalog.html" class="nav-link" data-i18n="nav_catalog">Catalog</a></li>
-        <li><a href="spectrum.html" class="nav-link" data-i18n="nav_spectrum">Spectrum</a></li>
-        <li><button id="langToggleBtn" class="lang-toggle-btn">ENG/MM</button></li>
-      </ul>
-    </nav>
-  </header>
+      <div class="sx-item sx-lang"><button type="button" class="sx-link" id="langToggleBtn">ENG/MM</button></div>
+    </div>
+  </div>
 
   <!-- ====================================================================
        2. MAIN DUAL-FRAME CONTAINER (Left: Sky Viewport, Right: Data Card)
        ==================================================================== -->
   <main class="main-container">
-    
+
     <!-- LEFT COLUMN: Real Sky Patch Viewport + Interactive Pill Controls -->
     <section class="left-section">
-      
+
       <!-- Primary Viewport Frame (Glowing Rounded Border) -->
       <div class="viewport-frame" id="viewportFrame">
-        
+
         <!-- WCS Coordinate Badges & Live Status -->
         <div class="badge-corner" id="coordsBadge">CONNECTING TO IRSA TAP...</div>
         <div class="badge-corner-right" id="epochBadge">REAL-TIME DATA</div>
-        
+
         <!-- Interactive Canvas: Renders Real FITS Cutouts + Astropy Proper-Motion Overlays -->
         <canvas id="blinkerCanvas" width="800" height="800" class="viewport-canvas"></canvas>
 
@@ -65,7 +66,8 @@
         <div class="loader-overlay active" id="loaderOverlay">
           <div class="spinner"></div>
           <div class="loader-text" id="loaderText">Initializing Caltech/IPAC IRSA connection...</div>
-          <div class="loader-subtext" id="loaderSubtext">Downloading real SPHEREx Level 2 MEF FITS files & Astropy WCS...</div>
+          <div class="loader-subtext" id="loaderSubtext">Downloading real SPHEREx Level 2 MEF FITS files & Astropy
+            WCS...</div>
         </div>
 
       </div>
@@ -75,7 +77,9 @@
         <div class="coord-input-group">
           <span class="coord-input-icon">⌖</span>
           <label for="coordSearchInput" class="coord-input-label" data-i18n="lbl_coords">Coordinates (RA, Dec):</label>
-          <input type="text" id="coordSearchInput" class="coord-search-box" placeholder="e.g. 269.452075, 4.693391 (RA, Dec)" value="269.452075, 4.693391" autocomplete="off" spellcheck="false" aria-label="Celestial Coordinates RA and Dec" />
+          <input type="text" id="coordSearchInput" class="coord-search-box"
+            placeholder="e.g. 269.452075, 4.693391 (RA, Dec)" value="269.452075, 4.693391" autocomplete="off"
+            spellcheck="false" aria-label="Celestial Coordinates RA and Dec" />
           <button id="btnCoordSearch" class="coord-search-btn" title="Explore coordinates via IRSA">
             <span data-i18n="btn_explore">Explore</span> ➔
           </button>
@@ -84,7 +88,7 @@
 
       <!-- PILL CONTROLS ROW (Matches exact Figma pill-shaped buttons) -->
       <div class="controls-row">
-        
+
         <!-- Button 1: Start/Pause Blinking Animation -->
         <button id="playAnimationBtn" class="pill-btn active">
           <span id="playIcon">▷</span>
@@ -122,11 +126,12 @@
         <span class="timeline-label">6-Month Survey Phase:</span>
         <input type="range" id="epochSlider" min="0" max="1" value="0" step="1" class="timeline-range">
         <span id="epochDisplay" class="timeline-speed">Survey 1 (Aug 15, 2025)</span>
-        
+
       </div>
       <div class="timeline-slider-row" id="timelineRow">
         <span class="timeline-label" style="margin-left:14px;">Vector Extrapolation:</span>
-        <input type="range" id="vectorSlider" min="1" max="50" value="10" step="1" class="timeline-range" style="max-width:140px;">
+        <input type="range" id="vectorSlider" min="1" max="50" value="10" step="1" class="timeline-range"
+          style="max-width:140px;">
         <span id="vectorDisplay" class="timeline-speed">10 Years</span>
       </div>
 
@@ -134,7 +139,8 @@
       <div class="spectrum-drawer" id="spectrumDrawer">
         <div class="spectrum-drawer-header">
           <div class="spectrum-drawer-title">
-            <strong>102-Band Spectrophotometry</strong> (<span id="specTargetName">Target</span>) — Real Photometry via Astropy
+            <strong>102-Band Spectrophotometry</strong> (<span id="specTargetName">Target</span>) — Real Photometry via
+            Astropy
           </div>
           <button class="close-btn" id="closeSpectrumBtn">&times;</button>
         </div>
@@ -145,7 +151,7 @@
 
     <!-- RIGHT COLUMN: Scientific Information & Live Telemetry Card -->
     <aside class="info-card-frame" id="infoCard">
-      
+
       <!-- Target Title & Physical Class -->
       <h1 class="info-title" id="targetTitle">
         <strong>Barnard's Star</strong> (High Proper-Motion Star)
@@ -154,7 +160,8 @@
       <!-- Astrological / Physical Description -->
       <div class="info-body">
         <p id="targetDescription">
-          Highest known proper-motion star in the celestial sphere (10.3 arcsec/yr). Superb for verifying epoch difference dipoles and proper-motion displacement.
+          Highest known proper-motion star in the celestial sphere (10.3 arcsec/yr). Superb for verifying epoch
+          difference dipoles and proper-motion displacement.
         </p>
 
         <!-- Live IRSA FITS Source Information -->
@@ -240,7 +247,16 @@
   </div>
 
   <!-- Shared & Page Scripts -->
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-text">
+      &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
+    </div>
+  </div>
+  <script src="nav.js"></script>
   <script src="shared.js"></script>
+  <script src="translate.js"></script>
   <script src="explore.js"></script>
 </body>
+
 </html>
