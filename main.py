@@ -814,6 +814,80 @@ def serve_presets_css():
     return FileResponse("presets.css")
 
 
+@app.get("/nav.css", response_class=FileResponse)
+def serve_nav_css():
+    return FileResponse("nav.css")
+
+
+@app.get("/nav.js", response_class=FileResponse)
+def serve_nav_js():
+    return FileResponse("nav.js")
+
+
+@app.get("/translate.js", response_class=FileResponse)
+def serve_translate_js():
+    return FileResponse("translate.js")
+
+
+@app.get("/comparison.html", response_class=FileResponse)
+def serve_comparison():
+    return FileResponse("comparison.html")
+
+
+@app.get("/comparison.css", response_class=FileResponse)
+def serve_comparison_css():
+    return FileResponse("comparison.css")
+
+
+@app.get("/comparison.js", response_class=FileResponse)
+def serve_comparison_js():
+    return FileResponse("comparison.js")
+
+
+@app.get("/about.html", response_class=FileResponse)
+def serve_about():
+    return FileResponse("about.html")
+
+
+@app.get("/about.js", response_class=FileResponse)
+def serve_about_js():
+    return FileResponse("about.js")
+
+
+@app.get("/about.css", response_class=FileResponse)
+def serve_about_css():
+    return FileResponse("about.css")
+
+
+@app.get("/index.html", response_class=FileResponse)
+def serve_index():
+    return FileResponse("index.html")
+
+
+@app.get("/style.css", response_class=FileResponse)
+def serve_style_css():
+    return FileResponse("style.css")
+
+
+@app.get("/script.js", response_class=FileResponse)
+def serve_script_js():
+    return FileResponse("script.js")
+
+
+# Catch-all safe file server for frontend assets at root path
+@app.get("/{filename:path}")
+def serve_root_file(filename: str):
+    file_path = Path(filename)
+    if (
+        file_path.is_file()
+        and file_path.suffix.lower() in SafeStaticFiles.ALLOWED_EXTENSIONS
+        and file_path.name.lower() not in SafeStaticFiles.FORBIDDEN_NAMES
+        and not any(part.startswith((".", "__")) for part in file_path.parts)
+    ):
+        return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="File not found")
+
+
 # Mount /static with security filters
 app.mount("/static", SafeStaticFiles(directory=".", html=True), name="static")
 
