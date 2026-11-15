@@ -1,80 +1,120 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Track - Sphere X Space Telescope</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="learn.css">
-  <link rel="stylesheet" href="app3d.css">
-  <link rel="stylesheet" href="nav.css">
-</head>
-<body class="app">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Track - Sphere X Space Telescope</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Silkscreen:wght@700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="learn.css" />
+    <link rel="stylesheet" href="app3d.css" />
+    <link rel="stylesheet" href="nav.css" />
+  </head>
+  <body class="app">
+    <canvas id="scene" aria-label="Track, interactive 3D view"></canvas>
 
-  <canvas id="scene" aria-label="Track, interactive 3D view"></canvas>
-
-   <div class="sx-navbar">
-    <div class="sx-logo">
-      <a href="index.html">
-        <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="logo-fallback" style="display: none;"><span>SPHEREx</span></div>
-      </a>
-    </div>
-    <div class="sx-links">
-      <!-- <div class="sx-item"><a href="#" class="sx-link" id="nav-timeline" data-i18n="nav_timeline">Timeline</a></div> -->
-       <!-- nav bar -->
+    <div class="sx-navbar">
+      <div class="sx-logo">
+        <a href="index.html">
+          <img
+            src="logo.png"
+            alt="SPHEREx Logo"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">
+            <span>SPHEREx</span>
+          </div>
+        </a>
+      </div>
+      <div class="sx-links">
         <div class="sx-item sx-dropdown">
-        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav_menu">Learning</span> <span class="sx-caret">&#9662;</span></button>
-        <ul class="sx-menu">
-          <li><a href="learn.html" data-i18n="nav_explore">Rotation</a></li>
-          <li><a href="objects.html" data-i18n="nav_track">Objects</a></li>
-          <li><a href="measurement.html" data-i18n="nav_track">Measurements</a></li>
-          <li><a href="comparison.html" data-i18n="nav_track">Comparison</a></li>
-
-
-
-        </ul>
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_learning">Learning</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="learn.html" data-i18n="nav_rotation">Rotation</a></li>
+            <li><a href="objects.html" data-i18n="nav_objects">Objects</a></li>
+            <li>
+              <a href="measurement.html" data-i18n="nav_measurements">Measurements</a>
+            </li>
+            <li>
+              <a href="comparison.html" data-i18n="nav_comparison">Comparison</a>
+            </li>
+          </ul>
+        </div>
+        <div class="sx-item">
+          <a href="about.html" class="sx-link" data-i18n="nav_about">About</a>
+        </div>
+        <div class="sx-item sx-dropdown">
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_tools">Tools</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+            <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+            <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+            <li>
+              <a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a>
+            </li>
+          </ul>
+        </div>
+        <div class="sx-item sx-lang">
+          <button type="button" class="sx-link" id="lang-toggle">ENG/MM</button>
+        </div>
       </div>
-        <!-- nav bar end -->
-      <div class="sx-item"><a href="about.html" class="sx-link" data-i18n="nav_about">About</a></div>
-      <div class="sx-item sx-dropdown">
-        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav_menu">Tools</span> <span class="sx-caret">&#9662;</span></button>
-        <ul class="sx-menu">
-          <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
-          <li><a href="track.html" data-i18n="nav_track">Track</a></li>
-          <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
-          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
-        </ul>
+    </div>
+
+    <div class="app-title">
+      <h1 data-k="title">Track SPHEREx</h1>
+      <p data-k="intro">
+        SPHEREx rides a polar orbit along the line between day and night, so the
+        Sun always shines on its solar panels and never into its telescope. Drag
+        to look around.
+      </p>
+    </div>
+
+    <div class="hud">
+      <div class="read">
+        <div><b>~650 km</b><small data-k="alt">altitude</small></div>
+        <div><b>~98 min</b><small data-k="per">orbit period</small></div>
+        <div><b>97.95°</b><small data-k="inc">inclination</small></div>
+        <div>
+          <b id="lat">0.0°</b><small data-k="lat">latitude (simulated)</small>
+        </div>
+        <div><b id="orb">0</b><small data-k="orb">orbits completed</small></div>
       </div>
-      <div class="sx-item sx-lang"><button type="button" class="sx-link" id="lang-toggle">ENG/MM</button></div>
-    </div>
+      <div class="controls">
+        <button class="btn" id="play" data-k="pause">Pause</button>
+        <button class="btn" id="spd">300×</button>
+        <button class="btn" id="cam" data-k="follow">Follow satellite</button>
+      </div>
+      <div class="note" data-k="note">
+        Simulated motion based on SPHEREx’s published orbit. This is not a live
+        position.
+      </div>
     </div>
 
-  <div class="app-title">
-    <h1 data-k="title">Track SPHEREx</h1>
-    <p data-k="intro">SPHEREx rides a polar orbit along the line between day and night, so the Sun always shines on its solar panels and never into its telescope. Drag to look around.</p>
-  </div>
-
-  <div class="hud">
-    <div class="read">
-      <div><b>~650 km</b><small data-k="alt">altitude</small></div>
-      <div><b>~98 min</b><small data-k="per">orbit period</small></div>
-      <div><b>97.95°</b><small data-k="inc">inclination</small></div>
-      <div><b id="lat">0.0°</b><small data-k="lat">latitude (simulated)</small></div>
-      <div><b id="orb">0</b><small data-k="orb">orbits completed</small></div>
-    </div>
-    <div class="controls">
-      <button class="btn" id="play" data-k="pause">Pause</button>
-      <button class="btn" id="spd">300×</button>
-      <button class="btn" id="cam" data-k="follow">Follow satellite</button>
-    </div>
-    <div class="note" data-k="note">Simulated motion based on SPHEREx’s published orbit. This is not a live position.</div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="nav.js"></script>
-  <script src="learn.js"></script>
-</body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="nav.js"></script>
+    <script src="learn.js"></script>
+  </body>
 </html>

@@ -12,29 +12,75 @@
 </head>
 <body>
 
-  <!-- Navigation Bar (shared, same as home page) -->
-  <div class="sx-navbar sx-fixed">
+  <!-- Fixed Top Navigation Bar (Same as Home Page) -->
+  <div class="sx-navbar">
     <div class="sx-logo">
       <a href="index.html">
-        <img src="logo.png" alt="SPHEREx Logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div class="logo-fallback" style="display: none;"><span>SPHEREx</span></div>
+        <img
+          src="logo.png"
+          alt="SPHEREx Logo"
+          onerror="
+            this.style.display = 'none';
+            this.nextElementSibling.style.display = 'flex';
+          "
+        />
+        <div class="logo-fallback" style="display: none">
+          <span>SPHEREx</span>
+        </div>
       </a>
     </div>
     <div class="sx-links">
-      <div class="sx-item"><a href="#" class="sx-link" id="nav-timeline" data-i18n="nav_timeline">Timeline</a></div>
-      <div class="sx-item"><a href="about.html" class="sx-link active" data-i18n="nav_about">About</a></div>
       <div class="sx-item sx-dropdown">
-        <button type="button" class="sx-link sx-drop-btn" aria-haspopup="true" aria-expanded="false"><span data-i18n="nav_menu">Tools</span> <span class="sx-caret">&#9662;</span></button>
+        <button
+          type="button"
+          class="sx-link sx-drop-btn"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span data-i18n="nav_learning">Learning</span>
+          <span class="sx-caret">&#9662;</span>
+        </button>
+        <ul class="sx-menu">
+          <li><a href="learn.html" data-i18n="nav_rotation">Rotation</a></li>
+          <li><a href="objects.html" data-i18n="nav_objects">Objects</a></li>
+          <li>
+            <a href="measurement.html" data-i18n="nav_measurements">Measurements</a>
+          </li>
+          <li>
+            <a href="comparison.html" data-i18n="nav_comparison">Comparison</a>
+          </li>
+        </ul>
+      </div>
+      <div class="sx-item">
+        <a href="about.html" class="sx-link" data-i18n="nav_about">About</a>
+      </div>
+      <div class="sx-item sx-dropdown">
+        <button
+          type="button"
+          class="sx-link sx-drop-btn"
+          aria-haspopup="true"
+          aria-expanded="false"
+        >
+          <span data-i18n="nav_tools">Tools</span>
+          <span class="sx-caret">&#9662;</span>
+        </button>
         <ul class="sx-menu">
           <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
           <li><a href="track.html" data-i18n="nav_track">Track</a></li>
           <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
-          <li><a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a></li>
+          <li>
+            <a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a>
+          </li>
         </ul>
       </div>
-      <div class="sx-item sx-lang"><button type="button" class="sx-link" id="lang-toggle">ENG/MM</button></div>
+      <div class="sx-item sx-lang">
+        <button type="button" class="sx-link" id="lang-toggle">ENG/MM</button>
+      </div>
     </div>
   </div>
+
+
+
 
   <!-- Scrollable Container for Satellite Parts & Builds -->
   <div class="about-container">
@@ -54,7 +100,7 @@
 
       <div class="part-image">
         <!-- Replace with your spacecraft image -->
-        <img src="spherex_2.png" alt="SPHEREx Detector Assembly">
+        <canvas class="part-canvas" data-part="detector" role="img" aria-label="3D model of the SPHEREx detector array"></canvas>
       </div>
     </div>
 
@@ -72,7 +118,7 @@
 
       <div class="part-image">
         <!-- Replace with your focal plane / telescope image -->
-        <img src="spherex-focal.png" alt="SPHEREx Focal Plane Layout">
+        <canvas class="part-canvas" data-part="focal" role="img" aria-label="3D model of the SPHEREx focal plane layout"></canvas>
       </div>
     </div>
 
@@ -90,7 +136,7 @@
 
       <div class="part-image">
         <!-- Replace with your photon shield / full build image -->
-        <img src="spherex-shield.png" alt="SPHEREx Photon Shields">
+        <canvas class="part-canvas" data-part="shield" role="img" aria-label="3D model of the SPHEREx V-groove photon shields"></canvas>
       </div>
     </div>
 
@@ -106,12 +152,14 @@
 
   <!-- Footer -->
   <div class="footer">
-    <div class="footer-text" data-en="&copy; 2026 SPHEREx Mission Explorer. All rights reserved." data-mm="© ၂၀၂၆ SPHEREx မစ်ရှင် စူးစမ်းလေ့လာရေး။ မူပိုင်ခွင့်အားလုံး ရယူထားသည်။">
+    <div class="footer-text">
       &copy; 2026 SPHEREx Mission Explorer. All rights reserved.
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="nav.js"></script>
+  <script src="parts3d.js"></script>
   <script src="about.js"></script>
 </body>
 </html>

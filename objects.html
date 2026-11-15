@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object - Sphere X Space Telescope</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Noto+Sans+Myanmar:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="about.css">
+  <link rel="stylesheet" href="object.css">
+  <link rel="stylesheet" href="nav.css">
+</head>
+<body>
+
+    <div class="sx-navbar">
+      <div class="sx-logo">
+        <a href="index.html">
+          <img
+            src="logo.png"
+            alt="SPHEREx Logo"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">
+            <span>SPHEREx</span>
+          </div>
+        </a>
+      </div>
+      <div class="sx-links">
+        <div class="sx-item sx-dropdown">
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_learning">Learning</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="learn.html" data-i18n="nav_rotation">Rotation</a></li>
+            <li><a href="objects.html" data-i18n="nav_objects">Objects</a></li>
+            <li>
+              <a href="measurement.html" data-i18n="nav_measurements">Measurements</a>
+            </li>
+            <li>
+              <a href="comparison.html" data-i18n="nav_comparison">Comparison</a>
+            </li>
+          </ul>
+        </div>
+        <div class="sx-item">
+          <a href="about.html" class="sx-link" data-i18n="nav_about">About</a>
+        </div>
+        <div class="sx-item sx-dropdown">
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_tools">Tools</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+            <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+            <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+            <li>
+              <a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a>
+            </li>
+          </ul>
+        </div>
+        <!-- <div class="sx-item sx-lang lang-switch">
+          <button type="button" class="sx-link" id="lang-toggle">ENG/MM</button>
+        </div> -->
+        <div class="nav-item lang-switch"><a href="#" id="lang-toggle">ENG/MM</a></div>
+      </div>
+    </div>
+
+  <div class="about-container">
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag" data-en="Y-type brown dwarf · Hydra · ~7.4 light-years" data-mm="Y အမျိုးအစား ဘရောင်းဒွာ့ဖ် · Hydra ကြယ်စု · အလင်းနှစ် ~၇.၄">Y-type brown dwarf · Hydra · ~7.4 light-years</div>
+        <div class="part-title" data-en="WISE 0855-0714" data-mm="WISE 0855-0714">WISE 0855-0714</div>
+        <div class="part-desc" data-en="The coldest known brown dwarf, about 7.4 light-years away. Its temperature is estimated at roughly −50 to 10 °C depending on the model, so it glows almost entirely in infrared and is nearly invisible to ordinary telescopes. Found in WISE survey data and announced in 2014, it holds only about 3–10 Jupiter masses and may have water-ice clouds." data-mm="ယခုအချိန်အထိ သိရှိထားသမျှ အအေးဆုံး ဘရောင်းဒွာ့ဖ် (brown dwarf) ဖြစ်ပြီး ကမ္ဘာနှင့် အလင်းနှစ် ၇.၄ ခန့် ဝေးကွာသည်။ ခန့်မှန်းမော်ဒယ်အလိုက် အပူချိန်မှာ စင်တီဂရိတ် -၅၀ မှ ၁၀ ဒီဂရီခန့်သာ ရှိသဖြင့် အနီအောက်ရောင်ခြည်ကိုသာ အဓိကထုတ်လွှတ်ပြီး သာမန်တယ်လီစကုပ်များဖြင့် မမြင်နိုင်သလောက် ဖြစ်သည်။ WISE ဒေတာမှ ရှာတွေ့ကာ ၂၀၁၄ ခုနှစ်တွင် ကြေညာခဲ့ပြီး ဂျူပီတာ၏ ၃ ဆမှ ၁၀ ဆခန့်သာ ဒြပ်ထုရှိကာ ရေခဲတိမ်များ ပါဝင်နိုင်သည်ဟု ယူဆကြသည်။">The coldest known brown dwarf, about 7.4 light-years away. Its temperature is estimated at roughly −50 to 10 °C depending on the model, so it glows almost entirely in infrared and is nearly invisible to ordinary telescopes. Found in WISE survey data and announced in 2014, it holds only about 3–10 Jupiter masses and may have water-ice clouds.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="wise" role="img" aria-label="A glowing infrared sphere with banded clouds, ice crystals and expanding infrared rings"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag" data-en="Red dwarf · Ophiuchus · ~6 light-years" data-mm="ကြယ်နီပု · Ophiuchus ကြယ်စု · အလင်းနှစ် ~၆">Red dwarf · Ophiuchus · ~6 light-years</div>
+        <div class="part-title" data-en="Barnard&#x27;s Star" data-mm="Barnard&#x27;s Star">Barnard&#x27;s Star</div>
+        <div class="part-desc" data-en="A small red dwarf only about 6 light-years away, the second-closest star system to the Sun. It holds the record for proper motion, drifting across the sky by 10.3 arcseconds every year. In 2025 astronomers confirmed four tiny, close-in planets around it, each with less than half the mass of Earth." data-mm="နေနှင့် အလင်းနှစ် ၆ ခန့်သာ ဝေးသော ကြယ်နီပု (red dwarf) ဖြစ်ပြီး နေစနစ်၏ ဒုတိယအနီးဆုံး ကြယ်စနစ် ဖြစ်သည်။ ကောင်းကင်ပေါ်တွင် တစ်နှစ်လျှင် arcsecond ၁၀.၃ နှုန်းဖြင့် ရွေ့လျားနေပြီး ယခုထိ သိရှိထားသမျှ ကြယ်များအနက် အမြန်ဆုံး ရွေ့လျားမှု (proper motion) မှတ်တမ်းကို ပိုင်ဆိုင်သည်။ ၂၀၂၅ ခုနှစ်တွင် ကမ္ဘာ၏ ဒြပ်ထု တစ်ဝက်အောက်ရှိသော သေးငယ်သည့် ဂြိုဟ်လေးလုံး ၎င်းကို ကပ်လျက် ပတ်နေကြောင်း အတည်ပြုခဲ့သည်။">A small red dwarf only about 6 light-years away, the second-closest star system to the Sun. It holds the record for proper motion, drifting across the sky by 10.3 arcseconds every year. In 2025 astronomers confirmed four tiny, close-in planets around it, each with less than half the mass of Earth.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="barnard" role="img" aria-label="A red dwarf with four small planets in tight orbits, drifting against background stars"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag" data-en="Binary brown dwarfs · Indus · ~12 light-years" data-mm="တွဲဘရောင်းဒွာ့ဖ်များ · Indus ကြယ်စု · အလင်းနှစ် ~၁၂">Binary brown dwarfs · Indus · ~12 light-years</div>
+        <div class="part-title" data-en="Epsilon Indi B (Binary Dwarf Field)" data-mm="Epsilon Indi B (ကြယ်ပုတွဲ နယ်ပယ်)">Epsilon Indi B (Binary Dwarf Field)</div>
+        <div class="part-desc" data-en="Two brown dwarfs, Ba and Bb, circle each other about every 11 years and are the nearest known brown dwarfs, roughly 12 light-years away. Weighing about 67 and 53 Jupiter masses, both are cool T dwarfs, glowing at roughly 1,100 °C and 700 °C. Together they orbit the orange star Epsilon Indi A, more than 1,400 AU away." data-mm="Ba နှင့် Bb ဟူသော ဘရောင်းဒွာ့ဖ် နှစ်လုံးသည် တစ်ဦးကိုတစ်ဦး ၁၁ နှစ်ခန့်လျှင် တစ်ပတ်ပတ်နေကြပြီး အလင်းနှစ် ၁၂ ခန့်အကွာတွင်ရှိသဖြင့် ယခုထိ သိရှိထားသမျှ အနီးဆုံး ဘရောင်းဒွာ့ဖ်များ ဖြစ်ကြသည်။ ဂျူပီတာ၏ ၆၇ ဆနှင့် ၅၃ ဆခန့် ဒြပ်ထုရှိသော T အမျိုးအစား အအေးဘရောင်းဒွာ့ဖ်များဖြစ်ပြီး အပူချိန် စင်တီဂရိတ် ၁၁၀၀ နှင့် ၇၀၀ ဒီဂရီခန့် ရှိသည်။ ၎င်းတို့နှစ်ခုသည် လိမ္မော်ရောင်ကြယ် Epsilon Indi A ကို AU ၁၄၀၀ ကျော်ဝေးသော အကွာမှ အတူတကွ ပတ်နေကြသည်။">Two brown dwarfs, Ba and Bb, circle each other about every 11 years and are the nearest known brown dwarfs, roughly 12 light-years away. Weighing about 67 and 53 Jupiter masses, both are cool T dwarfs, glowing at roughly 1,100 °C and 700 °C. Together they orbit the orange star Epsilon Indi A, more than 1,400 AU away.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="epsilon" role="img" aria-label="Two brown dwarfs orbiting their shared center on elongated orbits, with a distant orange star"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag" data-en="Young T Tauri binary · Auriga · ~450–600 light-years" data-mm="ငယ်ရွယ်သော T Tauri ကြယ်တွဲ · Auriga ကြယ်စု · အလင်းနှစ် ~၄၅၀–၆၀၀">Young T Tauri binary · Auriga · ~450–600 light-years</div>
+        <div class="part-title" data-en="RW Aurigae (Dust Disk Variable Field)" data-mm="RW Aurigae (ဖုန်မှုန့်ပြား ပြောင်းလဲကြယ် နယ်ပယ်)">RW Aurigae (Dust Disk Variable Field)</div>
+        <div class="part-desc" data-en="A young pair of T Tauri stars still wrapped in dusty disks. Since 2010 the main star has faded unpredictably several times, by several magnitudes, and astronomers think clumps of dust drifting in front of it are responsible. Gas and dust torn out of its disk during a close pass by its companion may feed those clouds." data-mm="ဖုန်မှုန့်ပြားများဖြင့် ဝန်းရံထားဆဲ ဖြစ်သော T Tauri အမျိုးအစား ငယ်ရွယ်သည့် ကြယ်နှစ်လုံး ပါဝင်သော စနစ်ဖြစ်သည်။ ၂၀၁၀ ပြည့်နှစ်မှစ၍ အဓိကကြယ်၏ အလင်းသည် မမျှော်လင့်ဘဲ မဂ်နီကျူ့ဒ် (magnitude) အဆင့်များစွာ မှိန်သွားခဲ့ဖူးပြီး ၎င်း၏ရှေ့မှ ဖုန်မှုန့်တိမ်စုများ ဖြတ်သန်းသွားသောကြောင့်ဟု ယူဆကြသည်။ ကြယ်နှစ်လုံး ကပ်ပြီး ဖြတ်သွားစဉ် ဆွဲထုတ်ခံရသော ဓာတ်ငွေ့နှင့် ဖုန်မှုန့်များက ထိုတိမ်စုများကို ဖြစ်ပေါ်စေနိုင်သည်။">A young pair of T Tauri stars still wrapped in dusty disks. Since 2010 the main star has faded unpredictably several times, by several magnitudes, and astronomers think clumps of dust drifting in front of it are responsible. Gas and dust torn out of its disk during a close pass by its companion may feed those clouds.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="rwaur" role="img" aria-label="A young star with a tilted dust disk, a companion star, a tidal stream and dust clumps that dim the star, with a light curve"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag" data-en="Mira variable · Draco · ~2,000 light-years" data-mm="Mira အမျိုးအစား ပြောင်းလဲကြယ် · Draco ကြယ်စု · အလင်းနှစ် ~၂,၀၀၀">Mira variable · Draco · ~2,000 light-years</div>
+        <div class="part-title" data-en="R Draconis (Pulsating Giant Field)" data-mm="R Draconis (ပြန့်ကားလိုက်ကျုံ့လိုက် ကြယ်ကြီး နယ်ပယ်)">R Draconis (Pulsating Giant Field)</div>
+        <div class="part-desc" data-en="A pulsating red giant of the Mira type, swelling and shrinking over a cycle of about 246 days. In visible light it swings from magnitude 6.7 (binocular range) to 13.2, roughly 400 times fainter. Much of that swing is energy shifting between visible and infrared light as the star’s temperature changes, which is why infrared views matter." data-mm="Mira အမျိုးအစား ပြန့်ကားလိုက် ကျုံ့လိုက် လှုပ်ခတ်နေသော ကြယ်နီကြီး (red giant) ဖြစ်ပြီး ၂၄၆ ရက်ခန့်ကြာတိုင်း တစ်ကြိမ် ဆန့်ထွက်ကာ ပြန်ကျုံ့သွားသည်။ မျက်မြင်အလင်းတွင် မဂ်နီကျူ့ဒ် ၆.၇ (မျက်မှန်ပြောင်းဖြင့် မြင်နိုင်သည့်အဆင့်) မှ ၁၃.၂ အထိ ပြောင်းလဲပြီး အလင်းအားမှာ ၄၀၀ ဆခန့် ကွာခြားသည်။ ထိုပြောင်းလဲမှု အများစုမှာ ကြယ်၏ အပူချိန်ပြောင်းလဲသည်နှင့်အမျှ စွမ်းအင်သည် မျက်မြင်အလင်းနှင့် အနီအောက်ရောင်ခြည်ကြား ရွေ့လျားသောကြောင့်ဖြစ်၍ အနီအောက်ရောင်ခြည်ဖြင့် ကြည့်ရှုခြင်းက အရေးပါသည်။">A pulsating red giant of the Mira type, swelling and shrinking over a cycle of about 246 days. In visible light it swings from magnitude 6.7 (binocular range) to 13.2, roughly 400 times fainter. Much of that swing is energy shifting between visible and infrared light as the star’s temperature changes, which is why infrared views matter.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="rdra" role="img" aria-label="A pulsating red giant swelling and shrinking, shedding dust, with visible and infrared light curves"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" id="scroll-indicator">
+    <div class="scroll-label" id="scroll-label">Scroll</div>
+    <div class="mouse-icon"><div class="mouse-wheel"></div></div>
+  </div>
+
+  <div class="footer">
+    <div class="page-note" data-en="Illustrations only. Sizes, colors and distances are simplified and not to scale." data-mm="ပုံများသည် သရုပ်ပြပုံများသာ ဖြစ်ပြီး အရွယ်အစား၊ အရောင်နှင့် အကွာအဝေးများ အချိုးမကျပါ။">Illustrations only. Sizes, colors and distances are simplified and not to scale.</div>
+    <div class="footer-text">&copy; 2026 SPHEREx Mission Explorer. All rights reserved.</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="object.js"></script>
+  <script src="about.js"></script>
+</body>
+</html>

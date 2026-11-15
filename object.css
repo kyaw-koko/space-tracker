@@ -1,0 +1,14 @@
+/* object.css: extras for object.html (zigzag layout itself comes from about.css) */
+body { font-family: 'Lora', 'Noto Sans Myanmar', Georgia, 'Times New Roman', serif; }
+.part-title { font-size: 2rem; line-height: 1.35; }
+.part-desc { font-size: 1.15rem; line-height: 1.85; }
+.part-tag {
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  color: #8fa8ff;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.part-canvas { cursor: grab; }
+.part-canvas:active { cursor: grabbing; }
+.page-note { margin-bottom: 8px; }

@@ -24,32 +24,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 2. Hide the "Scroll" mouse indicator when the user reaches the bottom of the page
   const scrollIndicator = document.getElementById("scroll-indicator");
-  window.addEventListener("scroll", () => {
-    const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
-    scrollIndicator.style.opacity = nearBottom ? "0" : "1";
-  });
+  if (scrollIndicator) {
+    window.addEventListener("scroll", () => {
+      const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 100;
+      scrollIndicator.style.opacity = nearBottom ? "0" : "1";
+    });
+  }
 
-  // 3. ENG / MM Language Toggle
-  const langToggle = document.getElementById("lang-toggle");
-  const scrollLabel = document.getElementById("scroll-label");
-  const translatableElements = document.querySelectorAll("[data-en]");
-
-  let currentLang = "ENG";
-
-  langToggle.addEventListener("click", (e) => {
-    e.preventDefault();
-    currentLang = currentLang === "ENG" ? "MM" : "ENG";
-
-    if (currentLang === "MM") {
-      scrollLabel.textContent = "အောက်သို့ဆွဲပါ";
-      translatableElements.forEach((el) => {
-        el.textContent = el.getAttribute("data-mm");
-      });
-    } else {
-      scrollLabel.textContent = "Scroll";
-      translatableElements.forEach((el) => {
-        el.textContent = el.getAttribute("data-en");
-      });
+  // 3. ENG / MM Language Synchronization
+  function applyLanguage() {
+    const isMM = (window.SXLang && window.SXLang.get() === 'MM') || localStorage.getItem('spherex_lang') === 'mm';
+    const scrollLabel = document.getElementById("scroll-label");
+    if (scrollLabel) {
+      scrollLabel.textContent = isMM ? "အောက်သို့ဆွဲပါ" : "Scroll";
     }
-  });
+
+    const translatableElements = document.querySelectorAll("[data-en]");
+    translatableElements.forEach((el) => {
+      const mmText = el.getAttribute("data-mm");
+      const enText = el.getAttribute("data-en");
+      el.textContent = isMM ? (mmText || enText) : enText;
+    });
+  }
+
+  // Listen to sx-lang event dispatched by nav.js
+  window.addEventListener("sx-lang", applyLanguage);
+
+  // Fallback click listener in case nav.js is not present
+  const langToggle = document.getElementById("lang-toggle");
+  if (langToggle && typeof window.SXLang === "undefined") {
+    langToggle.addEventListener("click", (e) => {
+      e.preventDefault();
+      const current = localStorage.getItem("spherex_lang") === "mm" ? "en" : "mm";
+      localStorage.setItem("spherex_lang", current);
+      applyLanguage();
+    });
+  }
+
+  // Apply language on initial load
+  applyLanguage();
 });

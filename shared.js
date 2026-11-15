@@ -97,7 +97,13 @@ const BENCHMARK_PRESETS = [
 const I18N = {
   en: {
     nav_timeline: "Timeline",
+    nav_learning: "Learning",
+    nav_rotation: "Rotation",
+    nav_objects: "Objects",
+    nav_measurements: "Measurements",
+    nav_comparison: "Comparison",
     nav_menu: "Tools",
+    nav_tools: "Tools",
     nav_about: "About",
     nav_explore: "Explore",
     nav_track: "Track",
@@ -114,7 +120,13 @@ const I18N = {
   },
   mm: {
     nav_timeline: "အချိန်ဇယား",
+    nav_learning: "လေ့လာမှု",
+    nav_rotation: "ပတ်လမ်းလည်ပတ်မှု",
+    nav_objects: "အရာဝတ္ထုများ",
+    nav_measurements: "တိုင်းတာချက်များ",
+    nav_comparison: "နှိုင်းယှဉ်ချက်",
     nav_menu: "ကိရိယာများ",
+    nav_tools: "ကိရိယာများ",
     nav_about: "အကြောင်းအရာ",
     nav_explore: "လေ့လာမည်",
     nav_track: "ခြေရာခံရန်",
@@ -146,7 +158,7 @@ function applyLanguage() {
     const key = el.getAttribute('data-i18n');
     if (dict[key]) el.textContent = dict[key];
   });
-  const toggleBtn = document.getElementById('langToggleBtn');
+  const toggleBtn = document.getElementById('langToggleBtn') || document.getElementById('lang-toggle');
   if (toggleBtn) {
     toggleBtn.textContent = currentLang === 'en' ? 'ENG/MM' : 'MM/ENG';
   }
@@ -312,7 +324,7 @@ function updateNavLinks() {
 document.addEventListener('DOMContentLoaded', () => {
   applyLanguage();
   updateNavLinks();
-  const langBtn = document.getElementById('langToggleBtn');
+  const langBtn = document.getElementById('langToggleBtn') || document.getElementById('lang-toggle');
   if (langBtn) {
     langBtn.addEventListener('click', toggleLanguage);
   }

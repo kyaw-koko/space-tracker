@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement - Sphere X Space Telescope</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500&family=Noto+Sans+Myanmar:wght@400;500&family=Silkscreen:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="about.css">
+  <link rel="stylesheet" href="measurement.css">
+  <link rel="stylesheet" href="nav.css">
+</head>
+<body>
+
+    <div class="sx-navbar">
+      <div class="sx-logo">
+        <a href="index.html">
+          <img
+            src="logo.png"
+            alt="SPHEREx Logo"
+            onerror="
+              this.style.display = 'none';
+              this.nextElementSibling.style.display = 'flex';
+            "
+          />
+          <div class="logo-fallback" style="display: none">
+            <span>SPHEREx</span>
+          </div>
+        </a>
+      </div>
+      <div class="sx-links">
+        <div class="sx-item sx-dropdown">
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_learning">Learning</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="learn.html" data-i18n="nav_rotation">Rotation</a></li>
+            <li><a href="objects.html" data-i18n="nav_objects">Objects</a></li>
+            <li>
+              <a href="measurement.html" data-i18n="nav_measurements">Measurements</a>
+            </li>
+            <li>
+              <a href="comparison.html" data-i18n="nav_comparison">Comparison</a>
+            </li>
+          </ul>
+        </div>
+        <div class="sx-item">
+          <a href="about.html" class="sx-link" data-i18n="nav_about">About</a>
+        </div>
+        <div class="sx-item sx-dropdown">
+          <button
+            type="button"
+            class="sx-link sx-drop-btn"
+            aria-haspopup="true"
+            aria-expanded="false"
+          >
+            <span data-i18n="nav_tools">Tools</span>
+            <span class="sx-caret">&#9662;</span>
+          </button>
+          <ul class="sx-menu">
+            <li><a href="explore.html" data-i18n="nav_explore">Explore</a></li>
+            <li><a href="track.html" data-i18n="nav_track">Track</a></li>
+            <li><a href="catalog.html" data-i18n="nav_catalog">Catalog</a></li>
+            <li>
+              <a href="spectrum.html" data-i18n="nav_spectrum">Spectrum</a>
+            </li>
+          </ul>
+        </div>
+        <!-- <div class="sx-item sx-lang lang-switch">
+          <button type="button" class="sx-link" id="lang-toggle">ENG/MM</button>
+        </div> -->
+        <div class="nav-item lang-switch"><a href="#" id="lang-toggle">ENG/MM</a></div>
+      </div>
+    </div>
+
+  <div class="about-container">
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="Sky Coordinates (RA &amp; DEC)" data-mm="ကောင်းကင်ယံ တည်နေရာပြ ကိုသြဒိနိတ်များ (RA &amp; DEC)">Sky Coordinates (RA &amp; DEC)</div>
+        <div class="part-desc" data-en="The celestial equivalent of longitude and latitude. Right Ascension (RA) measures how far east an object is along the celestial equator, while Declination (DEC) measures how far north or south it sits in the sky." data-mm="ကမ္ဘာမြေပေါ် ရှိ လောင်ဂျီတွဒ်နှင့် လတ္တီတွဒ်တို့နှင့် ဆင်တူသော အာကာသ တည်နေရာပြ စနစ်ဖြစ်ပါသည်။ Right Ascension (RA) သည် ကောင်းကင်အီကွေတာတစ်လျှောက် အရှေ့ဘက်သို့ မည်မျှရောက်နေသည်ကို တိုင်းတာပြီး Declination (DEC) သည် မြောက်ဘက် သို့မဟုတ် တောင်ဘက်သို့ မည်မျှတိမ်းစောင်းနေသည်ကို တိုင်းတာပေးပါသည်။">The celestial equivalent of longitude and latitude. Right Ascension (RA) measures how far east an object is along the celestial equator, while Declination (DEC) measures how far north or south it sits in the sky.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="coords" role="img" aria-label="3D celestial sphere showing right ascension and declination arcs to a star"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="102 Infrared Spectral Bands" data-mm="အနီအောက်ရောင်ခြည် လှိုင်းခွင် ၁၀၂ မျိုး (102 Spectral Bands)">102 Infrared Spectral Bands</div>
+        <div class="part-desc" data-en="Unlike standard cameras that capture only 3 colors (RGB), SPHEREx splits invisible infrared light into 102 distinct wavelengths. Each band acts like a cosmic barcode, revealing the chemical makeup, temperature, and distance of stars and galaxies." data-mm="သာမန်ကင်မရာများသည် အရောင် ၃ မျိုး (RGB) ကိုသာ ဖမ်းယူနိုင်သော်လည်း SPHEREx သည် မမြင်နိုင်သော အနီအောက်ရောင်ခြည်ကို လှိုင်းအလျား ၁၀၂ မျိုး အထိ ခွဲခြမ်းစိတ်ဖြာပေးပါသည်။ ၎င်းမှတစ်ဆင့် ကြယ်များနှင့် ဂလက်ဆီများ၏ ဓာတုဖွဲ့စည်းပုံနှင့် အကွာအဝေးကို တိကျစွာ သိရှိနိုင်ပါသည်။">Unlike standard cameras that capture only 3 colors (RGB), SPHEREx splits invisible infrared light into 102 distinct wavelengths. Each band acts like a cosmic barcode, revealing the chemical makeup, temperature, and distance of stars and galaxies.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="bands" role="img" aria-label="3 RGB color bars compared with 102 thin infrared spectral bars"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="Caltech/IPAC IRSA Level 2 Pipeline" data-mm="Caltech/IPAC IRSA Level 2 ဒေတာစနစ်">Caltech/IPAC IRSA Level 2 Pipeline</div>
+        <div class="part-desc" data-en="NASA&#x27;s automated processing system that converts raw telescope sensor signals into calibrated, science-ready sky exposures—complete with precise RA/DEC coordinates and true infrared brightness measurements." data-mm="အာကာသတယ်လီစကုပ်မှ ရရှိသော ကနဦး အာရုံခံအချက်ပြမှုများကို သိပ္ပံနည်းကျ အသုံးပြုနိုင်သော ပုံရိပ်များအဖြစ် ပြောင်းလဲပေးသည့် စနစ်ဖြစ်ပါသည်။ တိကျသော RA/DEC တည်နေရာများ နှင့် အနီအောက်ရောင်ခြည် အလင်းပြင်းအားတိုင်းတာမှုများ ပါဝင်ပါသည်။">NASA&#x27;s automated processing system that converts raw telescope sensor signals into calibrated, science-ready sky exposures—complete with precise RA/DEC coordinates and true infrared brightness measurements.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="pipeline" role="img" aria-label="Raw noisy sensor frame being calibrated into a clean sky image"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">1. TAP Table: spherex.artifact</div>
+        <div class="part-title" data-en="IRSA Catalog Index (spherex.artifact)" data-mm="IRSA ဒေတာအညွှန်းဇယား (spherex.artifact)">IRSA Catalog Index (spherex.artifact)</div>
+        <div class="part-desc" data-en="Queries NASA’s Table Access Protocol (TAP) database to locate and fetch every calibrated SPHEREx Level 2 exposure overlapping your target’s sky coordinates." data-mm="သင်ရှာဖွေနေသော ကောင်းကင်တည်နေရာနှင့် ထပ်တူကျသည့် SPHEREx Level 2 ပုံရိပ်ဖိုင်များအားလုံးကို NASA ၏ TAP ဒေတာဘေ့စ်မှတစ်ဆင့် တိုက်ရိုက်ရှာဖွေ ချိတ်ဆက်ပေးပါသည်။">Queries NASA’s Table Access Protocol (TAP) database to locate and fetch every calibrated SPHEREx Level 2 exposure overlapping your target’s sky coordinates.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="tap" role="img" aria-label="Database stack fetching sky exposures that overlap a target"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">2. WCS Distortion: North-Up TAN (6.2&quot;/px)</div>
+        <div class="part-title" data-en="Sky Alignment &amp; Scale (North-Up TAN • 6.2&quot;/px)" data-mm="ကောင်းကင်မြေပုံ ချိန်ညှိမှု (North-Up TAN • 6.2&quot;/px)">Sky Alignment &amp; Scale (North-Up TAN • 6.2&quot;/px)</div>
+        <div class="part-desc" data-en="Reprojects raw, rotated telescope frames onto a flat tangent-plane grid with Celestial North pointing straight up, preserving SPHEREx’s native 6.2 arcseconds-per-pixel resolution." data-mm="စောင်းနေသော တယ်လီစကုပ်ပုံရိပ်များကို မြောက်ဘက်အရပ် တည့်တည့်ထားရှိသော ပြင်ညီဇယားကွက်ပေါ်သို့ ပြန်လည်ချိန်ညှိပေးပြီး မူလကြည်လင်ပြတ်သားမှု (တစ်ပစ်ဆယ်လျှင် 6.2 arcseconds) အတိုင်း တိကျစွာ ပြသပေးပါသည်။">Reprojects raw, rotated telescope frames onto a flat tangent-plane grid with Celestial North pointing straight up, preserving SPHEREx’s native 6.2 arcseconds-per-pixel resolution.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="wcs" role="img" aria-label="Rotated sensor frame being aligned onto a north-up grid"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">3. ZODI Model: Subtracted (HDU 4)</div>
+        <div class="part-title" data-en="Zodiacal Glow Removal (ZODI Subtracted • HDU 4)" data-mm="နေအဖွဲ့အစည်း ဖုန်မှုန့်အလင်း ဖယ်ရှားမှု (ZODI • HDU 4)">Zodiacal Glow Removal (ZODI Subtracted • HDU 4)</div>
+        <div class="part-desc" data-en="Subtracts foreground infrared sunlight scattered by Solar System dust (stored in FITS layer HDU 4), leaving a clean dark background so faint stars and moving objects stand out clearly." data-mm="နေအဖွဲ့အစည်းအတွင်းရှိ ဖုန်မှုန့်များမှ ပြန်ဟပ်သော အနီအောက်ရောင်ခြည် အလင်းမှုန်များ (HDU 4) ကို ဖယ်ရှားပေးထားသဖြင့် မှိန်ဖျော့သော ကြယ်များနှင့် ရွေ့လျားနေသော အရာဝတ္ထုများကို ကြည်လင်ပြတ်သားစွာ မြင်တွေ့နိုင်ပါသည်။">Subtracts foreground infrared sunlight scattered by Solar System dust (stored in FITS layer HDU 4), leaving a clean dark background so faint stars and moving objects stand out clearly.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="zodi" role="img" aria-label="Dusty infrared sky with the zodiacal glow fading away, leaving faint stars"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-title" data-en="Gaia DR3 Star Catalog" data-mm="Gaia DR3 ကြယ်တာရာ စာရင်းချုပ်">Gaia DR3 Star Catalog</div>
+        <div class="part-desc" data-en="The European Space Agency’s landmark 3D map of 1.8 billion stars. Provides ultra-precise sky coordinates (RA/DEC), distances, and proper motion vectors used to track how stars move across time." data-mm="ဥရောပအာကာသအေဂျင်စီ (ESA) မှ ထုတ်ပြန်ထားသော ကြယ်ပေါင်း ၁.၈ ဘီလီယံကျော်၏ တိကျသည့် 3D မြေပုံဖြစ်ပါသည်။ ကြယ်များ၏ တည်နေရာ (RA/DEC)၊ အကွာအဝေးနှင့် ရွေ့လျားနှုန်းများကို တွက်ချက်ပြသရာတွင် အသုံးပြုပါသည်။">The European Space Agency’s landmark 3D map of 1.8 billion stars. Provides ultra-precise sky coordinates (RA/DEC), distances, and proper motion vectors used to track how stars move across time.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="gaia" role="img" aria-label="Spiral star map with proper motion vectors"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">1. Covered Channels (17 / 102)</div>
+        <div class="part-title" data-en="Covered Spectral Channels" data-mm="ဒေတာရရှိသော လှိုင်းခွင်အရေအတွက်">Covered Spectral Channels</div>
+        <div class="part-desc" data-en="Number of SPHEREx’s 102 infrared wavelength bands that have valid, unmasked observations at this exact sky coordinate." data-mm="ဤကောင်းကင်တည်နေရာအတွက် SPHEREx ၏ အနီအောက်ရောင်ခြည် လှိုင်းခွင် ၁၀၂ မျိုးအနက် တိကျစွာ ဖမ်းယူရရှိထားသော လှိုင်းခွင်အရေအတွက် ဖြစ်ပါသည်။">Number of SPHEREx’s 102 infrared wavelength bands that have valid, unmasked observations at this exact sky coordinate.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="covered" role="img" aria-label="Grid of 102 channels with 17 lit"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">2. Peak Flux (280.5 μJy)</div>
+        <div class="part-title" data-en="Peak Infrared Flux (μJy)" data-mm="အမြင့်ဆုံး အနီအောက်ရောင်ခြည် အလင်းပြင်းအား (μJy)">Peak Infrared Flux (μJy)</div>
+        <div class="part-desc" data-en="The highest measured brightness across all covered wavelength bands, recorded in microjanskys (μJy) to show where the object emits the strongest infrared energy." data-mm="ဖမ်းယူရရှိထားသော လှိုင်းခွင်များအနက် အမြင့်ဆုံး တိုင်းတာရရှိသည့် အလင်းပြင်းအားပမာဏ (μJy) ဖြစ်ပြီး အရာဝတ္ထု၏ စွမ်းအင်အထုတ်လွှတ်ဆုံး လှိုင်းအလျားကို ပြသပေးပါသည်။">The highest measured brightness across all covered wavelength bands, recorded in microjanskys (μJy) to show where the object emits the strongest infrared energy.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="flux" role="img" aria-label="Infrared spectrum curve with the peak flux marked"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">3. Mean SNR (5.1)</div>
+        <div class="part-title" data-en="Mean Signal-to-Noise Ratio (SNR)" data-mm="ပျမ်းမျှ အချက်ပြနှင့် ဆူညံသံ အချိုး (Mean SNR)">Mean Signal-to-Noise Ratio (SNR)</div>
+        <div class="part-desc" data-en="Measures signal clarity relative to background noise across all extracted bands. Values of 5.0 or higher confirm a statistically reliable detection." data-mm="နောက်ခံဆူညံသံများထက် စစ်မှန်သော အချက်ပြစွမ်းအား မည်မျှပြတ်သားသည်ကို တိုင်းတာပေးပါသည်။ တန်ဖိုး ၅.၀ နှင့်အထက် ရှိပါက ယုံကြည်စိတ်ချရသော တွေ့ရှိချက်အဖြစ် သတ်မှတ်ပါသည်။">Measures signal clarity relative to background noise across all extracted bands. Values of 5.0 or higher confirm a statistically reliable detection.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="snr" role="img" aria-label="Noisy signal with a peak rising above the 5 sigma threshold"></canvas>
+      </div>
+    </div>
+    <div class="part-section scroll-reveal">
+      <div class="part-text">
+        <div class="part-tag">4. Aperture Radius (6.2 arcsec)</div>
+        <div class="part-title" data-en="Photometric Aperture Radius (6.2&quot;)" data-mm="အလင်းတိုင်းတာသည့် စက်ဝိုင်းအချင်းဝက် (6.2&quot;)">Photometric Aperture Radius (6.2&quot;)</div>
+        <div class="part-desc" data-en="Radius of the circular measurement zone centered on the target—matching SPHEREx’s native 1-pixel scale (6.2 arcsec) to isolate its light from nearby stars." data-mm="ပစ်မှတ်ကြယ်၏ ဗဟိုပတ်လည်ရှိ အလင်းစုစည်းတိုင်းတာသော စက်ဝိုင်းအချင်းဝက် (SPHEREx ၏ မူလ ၁ ပစ်ဆယ်အရွယ်အစား 6.2 arcsec) ဖြစ်ပြီး အနီးနားရှိ အခြားကြယ်များ၏ အလင်းနှင့် မရောထွေးစေရန် ပိုင်းခြားပေးပါသည်။">Radius of the circular measurement zone centered on the target—matching SPHEREx’s native 1-pixel scale (6.2 arcsec) to isolate its light from nearby stars.</div>
+        <div class="callout-line"></div>
+      </div>
+      <div class="part-image">
+        <canvas class="part-canvas" data-m="aperture" role="img" aria-label="Star profile over a pixel grid with a circular measurement aperture"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator" id="scroll-indicator">
+    <div class="scroll-label" id="scroll-label">Scroll</div>
+    <div class="mouse-icon"><div class="mouse-wheel"></div></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">&copy; 2026 SPHEREx Mission Explorer. All rights reserved.</div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="nav.js"></script>
+  <script src="measurement.js"></script>
+  <script src="about.js"></script>
+</body>
+</html>
