@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'nav_catalog': 'Catalog',
         'nav_spectrum': 'Spectrum',
         'nav_timeline': 'Timeline',
-        lang: 'ENG/MM'
+        'nav_comparison': 'Comparison', lang: 'ENG/MM'
       },
       mm: {
         'nav_learning': 'လေ့လာမှု',
@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'nav_catalog': 'ကြယ်စာရင်း',
         'nav_spectrum': 'ရောင်စဉ်ခွဲခြမ်းမှု',
         'nav_timeline': 'အချိန်ဇယား',
-        lang: 'MM/ENG'
+        'nav_comparison': 'နှိုင်းယှဉ်ချက်', lang: 'MM/ENG'
       }
     };
     let lang = localStorage.getItem('spherex_lang') || 'en';
